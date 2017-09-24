@@ -1,2 +1,2 @@
-test git for boockshell
-test2
+To create sqllite DB
+# sqlite3 bookshell.db < bookshell.sql
