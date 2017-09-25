@@ -23,23 +23,23 @@ CREATE TABLE books (
 );
 CREATE INDEX books_idx ON books(book_name); 
 INSERT INTO "books" VALUES(1,'War and Peace','Everybody fightes after Napoleon and dances with Natasha Rostova');
-CREATE TABLE ganre ( 
-	ganre_id integer PRIMARY KEY asc, 
-	ganre_name varchar(255)
+CREATE TABLE genre ( 
+	genre_id integer PRIMARY KEY asc, 
+	genre_name varchar(255)
 );
-INSERT INTO "ganre" VALUES(1,'history roman');
-CREATE TABLE ganre_book ( 
+INSERT INTO "genre" VALUES(1,'history roman');
+CREATE TABLE genre_book ( 
 	book_id integer, 
-	ganre_id integer,
+	genre_id integer,
 	FOREIGN KEY (book_id) REFERENCES books(book_id),
-	FOREIGN KEY (ganr_id) REFERENCES ganr(ganre_id)
+	FOREIGN KEY (ganr_id) REFERENCES ganr(genre_id)
 );
-INSERT INTO "book_ganre" VALUES(1,1);
-CREATE TABLE autors ( 
+INSERT INTO "book_genre" VALUES(1,1);
+create table autors ( 
 	user_id integer, 
 	book_id integer,
-	FOREIGN KEY (book_id) REFERENCES books(book_id),
-	FOREIGN KEY (user_id) REFERENCES users(user_id)
+	foreign key (book_id) references books(book_id),
+	foreign key (user_id) references users(user_id)
 );
 INSERT INTO "autors" VALUES(3,1);
 CREATE TABLE chapters ( 
