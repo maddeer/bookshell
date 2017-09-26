@@ -22,6 +22,9 @@ class Role(Base):
         self.role_id = role_id 
         self.role_name = role_name 
 
+    def __repr__ (self):
+        print('Role {} {}>'.format(self.role_id, self.role_name))
+
 
 class Users(Base):
     __tablename__ = 'users' 
@@ -38,6 +41,9 @@ class Users(Base):
         self.full_name = full_name
         self.role = role
 
+    def __repr__ (self):
+        print('<Users {} {}>'.format(self.user_name, self.full_name))
+
 
 class Genre(Base):
     __tablename__ = 'genre' 
@@ -47,6 +53,9 @@ class Genre(Base):
     def __init__ (self, genre_id=None, genre_name=None): 
         self.genre_id = genre_id
         self.genre_name = genre_name 
+
+    def __repr__ (self):
+        print('<Genre {} {}>'.format(self.genre_id, self.genre_name))
 
 
 class Books(Base): 
@@ -60,8 +69,11 @@ class Books(Base):
         self.book_name = book_name
         self.book_description = book_description
 
+    def __repr__ (self):
+        print('<Books {} {}>'.format(self.book_id, self.book_name))
 
-class genre_Book(Base): 
+
+class GenreBook(Base): 
     __tablename__ = 'genre_book'
     id = Column(Integer, primary_key=True)
     book_id = Column(Integer, ForeignKey('books.book_id'))
@@ -70,6 +82,9 @@ class genre_Book(Base):
     def __init__ (self, book_id=None, genre_id=None):
         self.book_id = book_id
         self.genre_id = genre_id
+
+    def __repr__ (self):
+        print('<GenreBook {} {}>'.format(self.book_id, self.genre_id))
 
 
 class Autors(Base):
@@ -81,6 +96,9 @@ class Autors(Base):
     def __init__ (self, user_id=None, book_id=None):
         self.user_id = user_id
         self.book_id = book_id
+
+    def __repr__ (self):
+        print('<Autors {} {}>'.format(self.user_id, self.book_id))
 
 
 class Chapters(Base): 
@@ -107,15 +125,23 @@ class Chapters(Base):
         self.date_to_open = date_to_open
         self.chapter_text = chapter_text
 
+    def __repr__ (self):
+        print('<Chapters {} {} {}>'.format(self.chapter_id, self.chapter_title, self.book_id))
 
-#class Grants(Base):
-#    pass
-#    CREATE TABLE chapter_grants_allowed ( 
-#	user_id integer, 
-#	allowed_chapter_id integer,
-#	FOREIGN KEY (user_id) REFERENCES users(user_id),
-#	FOREIGN KEY (allowed_chapter_id) REFERENCES chapters(chapter_id)
-#);
+
+class Grants(Base):
+    __tablename__ = 'chapter_grants_allowed'
+    id = Column(Integer,primary_key=True) 
+    user_id = Column(Integer, ForeignKey('users.user_id'))  
+    allowed_chapter_id = Column(Integer, ForeignKey('chapters.chapter_id'))
+
+    def __init__ (self, user_id=None, allowed_chapter_id=None):
+        self.user_id = user_id
+        self.allowed_chapter_id = allowed_chapter_id 
+
+    def __repr__ (self):
+        print('<Grants {} {}>'.format(self.user_id, self.allowed_chapter_id))
+
 
 if __name__ == '__main__':
     Base.metadata.create_all(bind=engine)
