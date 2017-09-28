@@ -29,7 +29,7 @@ class PDF(FPDF):
         # Background color
         #self.set_fill_color(200, 220, 255)
         # Title
-        self.cell(0, 6, 'Глава %d : %s' % (num, label), 0, 1, 'L', 0)
+        self.cell(0, 6, 'Глава {} : {}'.format(num, label), 0, 1, 'L', 0)
         # Line break
         self.ln(4)
 
@@ -41,6 +41,16 @@ class PDF(FPDF):
         self.multi_cell(0, 5, chapter_txt)
         # Line break
         self.ln()
+    
+    def title_list(self, autors, book_name)
+        self.add_page()
+        self.set_font('Times', '', 12)
+        for autor in autors:
+            self.cell(30, 6, autor.full_name, 0, 1, 'L', 0)
+        self.set_font('Times', '', 30)
+        self.multi_cell(30, 6, book_name, 0, 1, 'L', 0)
+        self.ln()
+
 
     def print_chapter(self, book_name, num, title, name):
         book_name = book_name
@@ -48,16 +58,6 @@ class PDF(FPDF):
         self.chapter_title(num, title)
         self.chapter_body(name)
 
-    #def __init__(self, book_name = 'Book Name'):
-    #    self.book_name = book_name
-
-# Instantiation of inherited class
-
-
-def init_pdf(pdf):
-    pdf.add_font('Arial', '', 'LiberationSans-Regular.ttf', uni=True)
-    pdf.add_font('Times', '', 'LiberationSerif-Regular.ttf', uni=True)
-    
 
 if __name__ == '__main__':
     pdf = PDF()

@@ -3,11 +3,11 @@ from databaseinit import Users, Autors, Books, Chapters
 
 
 def get_book_by_id(book_id):
-    book = Books.query.filter( Books.book_id == book_id ).first()
-    book_chapters = Chapters.query.filter( Chapters.book_id == book.book_id ).group_by(Chapters.chapter_number).all()
+    book = Books.query.filter(Books.book_id == book_id).first()
+    book_chapters = Chapters.query.filter(Chapters.book_id==book.book_id).group_by(Chapters.chapter_number).all()
     autors = Users.query.join(Autors, Autors.user_id == Users.user_id).filter(Autors.book_id == book_id).all()
-    book_json = { 'book_data': book, 'autors': autors, 'book_chapters': book_chapters }
-    return book_json
+    book_dict = {'book_data': book, 'autors': autors, 'book_chapters': book_chapters}
+    return book_dict
 
 
 def make_pdf_book(book): 
@@ -21,6 +21,8 @@ def make_pdf_book(book):
     pdf.set_title(book_name)
     for autor in book['autors']: 
         pdf.set_author(autor.full_name)
+
+    pdf.title_list(book['autors'], book_name)
     for chapter in book['book_chapters']:
         title = chapter.chapter_title
         pdf.print_chapter(book_name, chapter.chapter_number, chapter.chapter_title, chapter.chapter_text)
