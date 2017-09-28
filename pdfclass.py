@@ -42,7 +42,7 @@ class PDF(FPDF):
         # Line break
         self.ln()
     
-    def title_list(self, autors, book_name)
+    def title_list(self, autors, book_name):
         self.add_page()
         self.set_font('Times', '', 12)
         for autor in autors:
