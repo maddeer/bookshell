@@ -4,18 +4,20 @@ CREATE TABLE user_role(
 	role_id integer PRIMARY KEY asc, 
 	role_name varchar(50)
 );
+INSERT INTO 'user_role' VALUES(1,'user');
+INSERT INTO 'user_role' VALUES(2,'autor');
 CREATE TABLE users ( 
 	user_id  integer PRIMARY KEY asc, 
 	user_name varchar(255) unique not null, 
 	password varchar(255) not null, 
 	full_name varchar(255), 
 	role integer not null,
-	FOREIGN KEY (role_id) REFERENCES user_role(role_id)
+	FOREIGN KEY (role) REFERENCES user_role(role_id)
 );
 CREATE UNIQUE INDEX users_idx ON users(user_name); 
-INSERT INTO "users" VALUES(1,'maddeer','pass','Mad Deer','user');
-INSERT INTO "users" VALUES(2,'mad-deer','longpass','Mad Deer','autor');
-INSERT INTO "users" VALUES(3,'mad.deer','longpass','TOLSTOY','autor');
+INSERT INTO "users" VALUES(1,'maddeer','pass','Mad Deer',1);
+INSERT INTO "users" VALUES(2,'mad-deer','longpass','Mad Deer',2);
+INSERT INTO "users" VALUES(3,'mad.deer','longpass','TOLSTOY',2);
 CREATE TABLE books ( 
 	book_id  integer PRIMARY KEY asc, 
 	book_name varchar(255) not null , 
@@ -33,7 +35,7 @@ CREATE TABLE genre_book (
 	book_id integer, 
 	genre_id integer,
 	FOREIGN KEY (book_id) REFERENCES books(book_id),
-	FOREIGN KEY (ganr_id) REFERENCES ganr(genre_id)
+	FOREIGN KEY (genre_id) REFERENCES genre(genre_id)
 );
 INSERT INTO "genre_book" VALUES(1,1,1);
 create table autors ( 
@@ -54,8 +56,8 @@ CREATE TABLE chapters (
 	FOREIGN KEY (book_id) REFERENCES books(book_id)
 );
 CREATE INDEX chapters_idx ON chapters(book_id); 
-INSERT INTO "chapters" VALUES(1,1,1,'peace','2017-09-22','Everybody fights. Somebody dances. War is coming');
-INSERT INTO "chapters" VALUES(2,1,2,'war','2017-09-22','Everybody fights. Somebody dies. War is going');
+INSERT INTO "chapters" VALUES(1,1,1,'peace','2017-09-22 11:00:00.222','Everybody fights. Somebody dances. War is coming');
+INSERT INTO "chapters" VALUES(2,1,2,'war','2017-09-22 11:00:00.222','Everybody fights. Somebody dies. War is going');
 CREATE TABLE chapter_grants_allowed ( 
 	id integer PRIMARY KEY asc,
 	user_id integer, 

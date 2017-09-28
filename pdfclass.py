@@ -42,13 +42,13 @@ class PDF(FPDF):
         # Line break
         self.ln()
     
-    def title_list(self, autors, book_name):
+    def title_page(self, autors, book_name):
         self.add_page()
         self.set_font('Times', '', 12)
         for autor in autors:
-            self.cell(30, 6, autor.full_name, 0, 1, 'L', 0)
+            self.cell(0, 60, autor.full_name, 0, 1, 'L', 0)
         self.set_font('Times', '', 30)
-        self.multi_cell(30, 6, book_name, 0, 1, 'L', 0)
+        self.multi_cell(0, 60, book_name, 0, 'C')
         self.ln()
 
 
