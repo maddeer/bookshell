@@ -34,8 +34,7 @@ class Users(Base):
     full_name = Column(String(50), index=True)
     role = Column(Integer, ForeignKey('user_role.role_id'))
     
-    def __init__ (self, user_id=None, user_name=None, password=None, full_name=None, role=None): 
-        self.user_id = user_id
+    def __init__ (self, user_name=None, password=None, full_name=None, role=None): 
         self.user_name = user_name 
         self.password = password 
         self.full_name = full_name
@@ -50,8 +49,7 @@ class Genre(Base):
     genre_id = Column(Integer, primary_key=True) 
     genre_name = Column(String(25), nullable=False)
 
-    def __init__ (self, genre_id=None, genre_name=None): 
-        self.genre_id = genre_id
+    def __init__ (self, genre_name=None): 
         self.genre_name = genre_name 
 
     def __repr__ (self):
@@ -64,8 +62,7 @@ class Books(Base):
     book_name = Column(String(255), nullable=False)
     book_description = Column(Text)
 
-    def __init__ (self, book_id=None, book_name=None, book_description=None):
-        self.book_id = book_id 
+    def __init__ (self, book_name=None, book_description=None):
         self.book_name = book_name
         self.book_description = book_description
 
@@ -111,14 +108,12 @@ class Chapters(Base):
     chapter_text = Column(Text)
 
     def __init__ (self, 
-            chapter_id=None, 
             book_id=None, 
             chapter_number=None, 
             chapter_title=None, 
             date_to_open=None, 
             chapter_text=None
         ):
-        self.chapter_id = chapter_id
         self.book_id = book_id
         self.chapter_number = chapter_number
         self.chapter_title = chapter_title
