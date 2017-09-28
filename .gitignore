@@ -1,3 +1,5 @@
 bookshell.db
 env
+*.pkl
+*.pdf
 __pycache__
