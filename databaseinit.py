@@ -121,7 +121,7 @@ class Chapters(Base):
         self.chapter_text = chapter_text
 
     def __repr__ (self):
-        print('<Chapters {} {} {}>'.format(self.chapter_id, self.chapter_title, self.book_id))
+        print('<Chapters {} {} {}>'.format(self.chapter_id, self.chapter_number, self.book_id))
 
 
 class Grants(Base):

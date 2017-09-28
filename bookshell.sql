@@ -29,19 +29,21 @@ CREATE TABLE genre (
 );
 INSERT INTO "genre" VALUES(1,'history roman');
 CREATE TABLE genre_book ( 
+	id integer PRIMARY KEY asc,
 	book_id integer, 
 	genre_id integer,
 	FOREIGN KEY (book_id) REFERENCES books(book_id),
 	FOREIGN KEY (ganr_id) REFERENCES ganr(genre_id)
 );
-INSERT INTO "book_genre" VALUES(1,1);
+INSERT INTO "genre_book" VALUES(1,1,1);
 create table autors ( 
+	id integer PRIMARY KEY asc,
 	user_id integer, 
 	book_id integer,
 	foreign key (book_id) references books(book_id),
 	foreign key (user_id) references users(user_id)
 );
-INSERT INTO "autors" VALUES(3,1);
+INSERT INTO "autors" VALUES(1,3,1);
 CREATE TABLE chapters ( 
 	chapter_id integer PRIMARY KEY asc, 
 	book_id integer not null, 
@@ -55,15 +57,16 @@ CREATE INDEX chapters_idx ON chapters(book_id);
 INSERT INTO "chapters" VALUES(1,1,1,'peace','2017-09-22','Everybody fights. Somebody dances. War is coming');
 INSERT INTO "chapters" VALUES(2,1,2,'war','2017-09-22','Everybody fights. Somebody dies. War is going');
 CREATE TABLE chapter_grants_allowed ( 
+	id integer PRIMARY KEY asc,
 	user_id integer, 
 	allowed_chapter_id integer,
 	FOREIGN KEY (user_id) REFERENCES users(user_id),
 	FOREIGN KEY (allowed_chapter_id) REFERENCES chapters(chapter_id)
 );
-INSERT INTO "chapter_grants_allowed" VALUES(1,1);
-INSERT INTO "chapter_grants_allowed" VALUES(2,1);
-INSERT INTO "chapter_grants_allowed" VALUES(3,1);
-INSERT INTO "chapter_grants_allowed" VALUES(1,2);
-INSERT INTO "chapter_grants_allowed" VALUES(2,2);
-INSERT INTO "chapter_grants_allowed" VALUES(3,2);
+INSERT INTO "chapter_grants_allowed" VALUES(1,1,1);
+INSERT INTO "chapter_grants_allowed" VALUES(2,2,1);
+INSERT INTO "chapter_grants_allowed" VALUES(3,3,1);
+INSERT INTO "chapter_grants_allowed" VALUES(4,1,2);
+INSERT INTO "chapter_grants_allowed" VALUES(5,2,2);
+INSERT INTO "chapter_grants_allowed" VALUES(6,3,2);
 COMMIT;
