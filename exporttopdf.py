@@ -1,18 +1,29 @@
 from datetime import datetime
 from pdfclass import PDF 
-from databaseinit import Users, Autors, Books, Chapters 
+from databaseinit import Users, Autors, Books, Chapters, Grants
+from sqlalchemy import or_
 
 
-def get_book_by_id(book_id):
+def get_book_by_id(book_id, user_id):
     date_now = datetime.utcnow()
     book = Books.query.filter(Books.book_id == book_id).first()
+    autors = Users.query.join(Autors, Autors.user_id == Users.user_id).filter(Autors.book_id == book_id).all()
 
-    book_chapters = Chapters.query.\
+    if user_id in [autor.user_id for autor in autors]: 
+        book_chapters = Chapters.query.\
             filter(Chapters.book_id == book.book_id).\
             filter(Chapters.date_to_open < date_now).\
-            group_by(Chapters.chapter_number).all()
+            group_by(Chapters.chapter_number).\
+            order_by(Chapters.chapter_number).all()
+    else: 
+        book_chapters = Chapters.query.\
+            outerjoin(Grants,Grants.allowed_chapter_id == Chapters.chapter_id).\
+            filter(Chapters.book_id == book.book_id).\
+            filter(or_(Chapters.date_to_open < date_now,\
+            Grants.user_id == user_id)).\
+            group_by(Chapters.chapter_number).\
+            order_by(Chapters.chapter_number).all()
 
-    autors = Users.query.join(Autors, Autors.user_id == Users.user_id).filter(Autors.book_id == book_id).all()
     book_dict = {'book_data': book, 'autors': autors, 'book_chapters': book_chapters}
     return book_dict
 
@@ -37,14 +48,14 @@ def make_pdf_book(book):
 
     for chapter in book['book_chapters']:
         pdf.title = chapter.chapter_title
-        pdf.print_chapter(pdf.book_name, chapter.chapter_number, chapter.chapter_title, chapter.chapter_text)
+        pdf.print_chapter(chapter.chapter_number, chapter.chapter_title, chapter.chapter_text)
 
     pdf.output('tuto2.pdf', 'F')
     return 'tuto2.pdf'
 
 
 if __name__ == '__main__': 
-    book_file = make_pdf_book(get_book_by_id(1))
+    book_file = make_pdf_book(get_book_by_id(1,1))
     print(book_file)
     
 

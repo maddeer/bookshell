@@ -1,6 +1,6 @@
 #!/usr/bin/env python3 
 
-from sqlalchemy import create_engine 
+from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base 

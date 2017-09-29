@@ -14,6 +14,7 @@ class PDF(FPDF):
         # Line break
         self.ln(10)
 
+
     # Page footer
     def footer(self):
         # Position at 1.5 cm from bottom
@@ -22,6 +23,7 @@ class PDF(FPDF):
         self.set_font('Arial', 'I', 8)
         # Page number
         self.cell(0, 10, str(self.page_no()) + '/{nb}', 0, 0, 'R')
+
 
     def chapter_title(self, num, label):
         # Arial 12
@@ -33,6 +35,7 @@ class PDF(FPDF):
         # Line break
         self.ln(4)
 
+
     def chapter_body(self, chapter_txt):
         # Read text file
         # Times 12
@@ -41,6 +44,7 @@ class PDF(FPDF):
         self.multi_cell(0, 5, chapter_txt)
         # Line break
         self.ln()
+
     
     def title_page(self, autors, book_name):
         self.add_page()
@@ -52,28 +56,28 @@ class PDF(FPDF):
         self.ln()
 
 
-    def print_chapter(self, book_name, num, title, name):
-        book_name = book_name
+    def print_chapter(self, num, title, name):
         self.add_page()
         self.chapter_title(num, title)
         self.chapter_body(name)
+
     
-    def __init__(self, book_name=None, title=None):
+#   def __init__(self, orientation='P',unit='mm',format='A4'):
+    def __init__(self):
         FPDF.__init__(self)
-        self.book_name = book_name
-        self.title = title
+        self.book_name = ''
+        self.title = ''
 
 
 if __name__ == '__main__':
     pdf = PDF()
-    init_pdf(pdf)
     pdf.alias_nb_pages()
     book_name = 'COOL BOOK: VERSION TOO MACH'
     title = 'My long Title Загаловок'
     pdf.add_page()
     pdf.set_font('Times', '', 12)
     for i in range(1, 41):
-        big_string = 'Printing тест line number asdfasdfasdfadfasfasfa asdfasf asdfasdfa asdfasfasf asdfasfasf asdfasfasf asfasf asfasf    asf asdfasdf asdfasfagg regagvafwe4ta hthwer gasgvawef adfgasdfgawertargatesabgsrthwsr5tgh as asfasdfa asdf  ' + str(i) 
+        big_string = ('Printing тест line number ' + str(i) + ' ') * 8
         pdf.multi_cell(0, 5, big_string, 0, 'L')
     title = 'My other long Title'
     pdf.add_page()
