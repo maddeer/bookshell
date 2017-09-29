@@ -23,7 +23,7 @@ class Role(Base):
         self.role_name = role_name 
 
     def __repr__ (self):
-        print('Role {} {}>'.format(self.role_id, self.role_name))
+        return('Role {} {}>'.format(self.role_id, self.role_name))
 
 
 class Users(Base):
@@ -41,7 +41,7 @@ class Users(Base):
         self.role = role
 
     def __repr__ (self):
-        print('<Users {} {}>'.format(self.user_name, self.full_name))
+        return('<Users {} {}>'.format(self.user_name, self.full_name))
 
 
 class Genre(Base):
@@ -53,7 +53,7 @@ class Genre(Base):
         self.genre_name = genre_name 
 
     def __repr__ (self):
-        print('<Genre {} {}>'.format(self.genre_id, self.genre_name))
+        return('<Genre {} {}>'.format(self.genre_id, self.genre_name))
 
 
 class Books(Base): 
@@ -67,7 +67,7 @@ class Books(Base):
         self.book_description = book_description
 
     def __repr__ (self):
-        print('<Books {} {}>'.format(self.book_id, self.book_name))
+        return('<Books {} {}>'.format(self.book_id, self.book_name))
 
 
 class GenreBook(Base): 
@@ -81,7 +81,7 @@ class GenreBook(Base):
         self.genre_id = genre_id
 
     def __repr__ (self):
-        print('<GenreBook {} {}>'.format(self.book_id, self.genre_id))
+        return('<GenreBook {} {}>'.format(self.book_id, self.genre_id))
 
 
 class Autors(Base):
@@ -95,7 +95,7 @@ class Autors(Base):
         self.book_id = book_id
 
     def __repr__ (self):
-        print('<Autors {} {}>'.format(self.user_id, self.book_id))
+        return('<Autors {} {}>'.format(self.user_id, self.book_id))
 
 
 class Chapters(Base): 
@@ -121,7 +121,7 @@ class Chapters(Base):
         self.chapter_text = chapter_text
 
     def __repr__ (self):
-        print('<Chapters {} {} {}>'.format(self.chapter_id, self.chapter_number, self.book_id))
+        return('<Chapters {} {} {}>'.format(self.chapter_id, self.chapter_number, self.book_id))
 
 
 class Grants(Base):
@@ -135,7 +135,7 @@ class Grants(Base):
         self.allowed_chapter_id = allowed_chapter_id 
 
     def __repr__ (self):
-        print('<Grants {} {}>'.format(self.user_id, self.allowed_chapter_id))
+        return('<Grants {} {}>'.format(self.user_id, self.allowed_chapter_id))
 
 
 if __name__ == '__main__':
