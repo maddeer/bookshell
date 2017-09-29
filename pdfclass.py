@@ -8,9 +8,9 @@ class PDF(FPDF):
         # Arial bold 15
         self.set_font('Arial-Bold', '', 10)
         # Move to the right
-        self.cell(0, 10, 'book_name', 'B')
+        self.cell(0, 10, self.book_name, 'B')
         # Title
-        self.cell(0, 10, "title", 'T', 0, 'R')
+        self.cell(0, 10, self.title, 'T', 0, 'R')
         # Line break
         self.ln(10)
 
@@ -57,6 +57,11 @@ class PDF(FPDF):
         self.add_page()
         self.chapter_title(num, title)
         self.chapter_body(name)
+    
+    def __init__(self, book_name=None, title=None):
+        FPDF.__init__(self)
+        self.book_name = book_name
+        self.title = title
 
 
 if __name__ == '__main__':
