@@ -62,9 +62,8 @@ class PDF(FPDF):
         self.chapter_body(name)
 
     
-#   def __init__(self, orientation='P',unit='mm',format='A4'):
-    def __init__(self):
-        FPDF.__init__(self)
+    def __init__(self, orientation='P',unit='mm',format='A4'):
+        super().__init__(orientation,unit,format)
         self.book_name = ''
         self.title = ''
 
