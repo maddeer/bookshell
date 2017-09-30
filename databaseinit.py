@@ -32,12 +32,14 @@ class Users(Base):
     user_name = Column(String(25), unique=True, index=True, nullable=False)
     password = Column(String(255), nullable=False) 
     full_name = Column(String(50), index=True)
+    telegram_login = Column(String(50), unique=True, index=True)
     role = Column(Integer, ForeignKey('user_role.role_id'))
     
-    def __init__ (self, user_name=None, password=None, full_name=None, role=None): 
+    def __init__ (self, user_name=None, password=None, full_name=None, telegram_login=None, role=None): 
         self.user_name = user_name 
         self.password = password 
         self.full_name = full_name
+        self.telegram_login = telegram_login
         self.role = role
 
     def __repr__ (self):
