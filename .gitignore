@@ -2,3 +2,6 @@ bookshell.db
 env
 my_env
 *.docx
+*.pkl
+*.pdf
+__pycache__
