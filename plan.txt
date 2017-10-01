@@ -1,0 +1,14 @@
+07.08
+telegram-bot
+get from docx
+save to pdf
+save to fb2/google_doc
+
+14.08
+web
+get from google_doc
+get from doc
+get from rtf/txt/odt
+
+21.08
+rates
