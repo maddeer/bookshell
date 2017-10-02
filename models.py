@@ -8,7 +8,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 
-engine = create_engine('sqlite:///bookhell.db')
+engine = create_engine('sqlite:///bookshell.db')
 
 db_session = scoped_session(sessionmaker(bind=engine))
 
