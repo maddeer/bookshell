@@ -50,6 +50,7 @@ class Genre(Base):
     __tablename__ = 'genre' 
     genre_id = Column(Integer, primary_key=True) 
     genre_name = Column(String(25), nullable=False)
+    genre = relationship('GenreBook', backref='genre')
 
     def __init__ (self, genre_name=None): 
         self.genre_name = genre_name 
@@ -63,6 +64,7 @@ class Books(Base):
     book_id = Column(Integer, primary_key=True) 
     book_name = Column(String(255), nullable=False)
     book_description = Column(Text)
+    book = relationship('GenreBook', backref='book')
 
     def __init__ (self, book_name=None, book_description=None):
         self.book_name = book_name
