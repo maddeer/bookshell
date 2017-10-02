@@ -7,7 +7,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base 
 
-engine = create_engine('sqlite:///Bookhell.db') 
+engine = create_engine('sqlite:///bookhell.db') 
 
 db_session = scoped_session(sessionmaker(bind=engine))
 
@@ -30,14 +30,14 @@ class Role(Base):
         return('Role {} {}>'.format(self.id, self.role_name))
 
 
-class Users(Base):
-    __tablename__ = 'users' 
+class User(Base):
+    __tablename__ = 'user' 
 
     id = Column(Integer, primary_key=True) 
     user_name = Column(String(25), unique=True, index=True, nullable=False)
     password = Column(String(255), nullable=False) 
     full_name = Column(String(50), index=True)
-    telegram_login = Column(String(50), unique=True, index=True)
+    telegram_login = Column(String(50), index=True)
     role_id = Column(Integer, ForeignKey('user_role.id'))
 
     
@@ -50,7 +50,7 @@ class Users(Base):
 
 
     def __repr__ (self):
-        return('<Users {} {}>'.format(self.user_name, self.full_name))
+        return('<User {} {}>'.format(self.user_name, self.full_name))
 
 
 class Genre(Base):
@@ -82,24 +82,24 @@ class Book(Base):
 
 
     def __repr__ (self):
-        return('<Book {} {}>'.format(self.book_id, self.book_name))
+        return('<Book {} {}>'.format(self.id, self.book_name))
 
 
     def get_book_info(self, book_id, user_id):
         date_now = datetime.utcnow()
-        book_info = self.query.filter(self.id == book_id).first()
+        book_info = self.query.filter(Book.id == book_id).first()
 
-        autors = Users.query.join(
-                Autors, 
-                Autors.user_id == Users.id,
+        autors = User.query.join(
+                Autor, 
+                Autor.user_id == User.id,
             ).filter(
-                Autors.book_id == book_id,
+                Autor.book_id == book_id,
             ).all()
 
-        if user_id in [autor.user_id for autor in autors]: 
+        if user_id in [autor.id for autor in autors]: 
 
-            book_chapter = Chapter.query.filter(
-                    Chapter.book_id == book_info.id,
+            book_chapters = Chapter.query.filter(
+                    Chapter.book_id == book_id,
                 ).filter(
                     Chapter.date_to_open < date_now,
                 ).order_by(
@@ -107,16 +107,18 @@ class Book(Base):
                 ).all()
 
         else: 
-            book_chapter = Chapter.query.outerjoin(
+            book_chapters = Chapter.query.outerjoin(
                     Grant,
-                    Grant.allowed_chapter_id == Chapter.id,
+                    Grant.allowed_chapter == Chapter.chapter_number,
                 ).filter(
-                    Chapter.book_id == book_info.id,
+                    Chapter.book_id == book_id,
                 ).filter(
                     or_(
                         Chapter.date_to_open < date_now,
                         Grant.user_id == user_id,
                     )
+                ).group_by(
+                    Chapter.id,
                 ).order_by(
                     Chapter.chapter_number,
                 ).all()
@@ -124,7 +126,7 @@ class Book(Base):
         book_dict = {
             'book_data': book_info,
             'book_autors': autors,
-            'book_chapter': book_chapter,
+            'book_chapters': book_chapters,
             }
         return book_dict
 
@@ -146,11 +148,11 @@ class GenreBook(Base):
         return('<GenreBook {} {}>'.format(self.book_id, self.genre_id))
 
 
-class Autors(Base):
-    __tablename__ = 'autors'
+class Autor(Base):
+    __tablename__ = 'autor'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('user.id'))
     book_id = Column(Integer, ForeignKey('book.id'))
 
 
@@ -160,7 +162,7 @@ class Autors(Base):
 
 
     def __repr__ (self):
-        return('<Autors {} {}>'.format(self.user_id, self.book_id))
+        return('<Autor {} {}>'.format(self.user_id, self.book_id))
 
 
 class Chapter(Base): 
@@ -196,17 +198,17 @@ class Grant(Base):
     __tablename__ = 'chapter_grant_allowed'
 
     id = Column(Integer,primary_key=True) 
-    user_id = Column(Integer, ForeignKey('users.id'))  
-    allowed_chapter_id = Column(Integer, ForeignKey('chapter.id'))
+    user_id = Column(Integer, ForeignKey('user.id'))  
+    allowed_chapter = Column(Integer, ForeignKey('chapter.chapter_number'))
 
 
-    def __init__ (self, user_id=None, allowed_chapter_id=None):
+    def __init__ (self, user_id=None, allowed_chapter=None):
         self.user_id = user_id
-        self.allowed_chapter_id = allowed_chapter_id 
+        self.allowed_chapter = allowed_chapter 
 
 
     def __repr__ (self):
-        return('<Grant {} {}>'.format(self.user_id, self.allowed_chapter_id))
+        return('<Grant {} {}>'.format(self.user_id, self.allowed_chapter))
 
 
 if __name__ == '__main__':
