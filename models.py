@@ -86,8 +86,7 @@ class Book(Base):
     def __repr__(self):
         return('<Book {} {}>'.format(self.id, self.book_name))
 
-    def get_book_info(self, book_id, user_id):
-        date_now = datetime.utcnow()
+    def get_book_info(self, book_id, user_id, date_now=datetime.utcnow()):
         book_info = self.query.filter(Book.id == book_id).first()
 
         authors = User.query.join(

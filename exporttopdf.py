@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from pdfclass import PDF 
 from models import Book
 
@@ -12,10 +14,10 @@ def make_pdf_book(book):
     pdf.book_name = book['book_data'].book_name
     pdf.set_title(pdf.book_name)
 
-    for autor in book['book_autors']: 
-        pdf.set_author(autor.full_name)
+    for author in book['book_authors']: 
+        pdf.set_author(author.full_name)
 
-    pdf.title_page(book['book_autors'], pdf.book_name)
+    pdf.title_page(book['book_authors'], pdf.book_name)
     pdf.add_page()
     pdf.chapter_body(book['book_data'].book_description)
 
@@ -29,7 +31,8 @@ def make_pdf_book(book):
 
 if __name__ == '__main__': 
     book = Book()
-    book_file = make_pdf_book(book.get_book_info(book_id=1, user_id=1))
+    date = datetime.utcnow() - timedelta(days=10)
+    book_file = make_pdf_book(book.get_book_info(book_id=1, user_id=1, date_now=date))
     print(book_file)
     
 
