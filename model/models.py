@@ -25,6 +25,7 @@ Base.query = db_session.query_property()
 def make_hash(passwd, salt=None):
     if not salt: 
         salt=hexlify(os.urandom(16)).decode('utf-8')
+
     pass_salt = salt + passwd
     password_hash = sha384(pass_salt.encode('utf-8')).hexdigest()
     return salt + password_hash
