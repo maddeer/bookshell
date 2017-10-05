@@ -1,0 +1,35 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="/">BookShell</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Моя книжная полка</a>
+      </li>
+    </ul>
+	{% if username %}
+
+      <li class="nav-item dropdown">
+		<a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {{ username }}
+		</a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="#">Профиль</a>
+          <a class="dropdown-item" href="/logout">Выйти</a>
+        </div>
+      </li>
+
+	{% else %}
+
+    <form class="form-inline my-2 my-lg-0" method='POST' action='/login'>
+      <input class="form-control mr-sm-2" type="text" placeholder="login" aria-label="login" name='login'>
+      <input class="form-control mr-sm-2" type="password" placeholder="Пароль" aria-label="password" name='password'>
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit" >Login</button>
+    </form>
+
+	{% endif %}
+  </div>
+</nav>
