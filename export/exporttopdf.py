@@ -1,3 +1,7 @@
+import os.path
+import sys
+sys.path.insert(0, '../')
+
 from datetime import datetime, timedelta
 
 from PyCRC.CRC32 import CRC32
@@ -10,9 +14,17 @@ from translit import transliterate
 
 def make_pdf_book(book): 
     pdf = PDF()
-    pdf.add_font('Arial', '', 'LiberationSans-Regular.ttf', uni=True)
-    pdf.add_font('Arial-Bold', '', 'LiberationSans-Bold.ttf', uni=True)
-    pdf.add_font('Times', '', 'LiberationSerif-Regular.ttf', uni=True)
+
+    base = os.path.abspath(os.path.dirname(__file__))
+    font_dir = os.path.join(base, 'font')
+
+    arial = os.path.join(font_dir, 'LiberationSans-Regular.ttf')
+    arial_bold = os.path.join(font_dir, 'LiberationSans-Bold.ttf')
+    times = os.path.join(font_dir, 'LiberationSerif-Regular.ttf')
+
+    pdf.add_font('Arial', '', arial, uni=True)
+    pdf.add_font('Arial-Bold', '', arial_bold, uni=True)
+    pdf.add_font('Times', '', times, uni=True)
     pdf.alias_nb_pages()
 
     pdf.book_name = book['book_data'].book_name
@@ -44,7 +56,6 @@ if __name__ == '__main__':
     book = Book()
     date = datetime.utcnow() - timedelta(days=10)
     book_info = book.get_book_info(book_id=1, user_id=2, date_now=date)
-    print(book_info)
     book_file = make_pdf_book(book_info)
     print(book_file)
     

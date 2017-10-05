@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+import os
+from hashlib import sha384
+from binascii import hexlify
+
 from datetime import datetime
 
 from sqlalchemy import create_engine, or_
@@ -8,13 +12,22 @@ from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 
-engine = create_engine('sqlite:///bookshell.db')
+DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'bookshell.db')
+
+engine = create_engine('sqlite:///'+DATABASE_PATH)
 
 db_session = scoped_session(sessionmaker(bind=engine))
 
 Base = declarative_base()
 
 Base.query = db_session.query_property()
+
+def make_hash(passwd, salt=None):
+    if not salt: 
+        salt=hexlify(os.urandom(16)).decode('utf-8')
+    pass_salt = salt + passwd
+    password_hash = sha384(pass_salt.encode('utf-8')).hexdigest()
+    return salt + password_hash
 
 
 class Role(Base):
@@ -57,6 +70,17 @@ class User(Base):
 
     def __repr__(self):
         return('<User {} {}>'.format(self.user_name, self.full_name))
+
+    def check_user_pass(self, user_id, password=None):
+        user_info = self.query.filter( User.id == user_id ).first()
+
+        salt = user_info.password[0:32]
+        salt_hash = make_hash(password, salt)
+
+        if user_info.password == salt_hash:
+            return True
+        else:
+            return False
 
 
 class Genre(Base):
