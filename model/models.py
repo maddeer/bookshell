@@ -232,12 +232,12 @@ class Chapter(Base):
 
         if user_id in [author.id for author in authors]:
 
-            book_chapter = self.query.filter(
+            book_chapters = self.query.filter(
                 Chapter.id == chapter_id,
             ).all()
 
         else:
-            book_chapter = self.query.outerjoin(
+            book_chapters = self.query.outerjoin(
                 Grant,
                 Grant.allowed_chapter == Chapter.chapter_number,
             ).filter(
@@ -256,7 +256,7 @@ class Chapter(Base):
         book_dict = {
             'book_data': book_info,
             'book_authors': authors,
-            'book_chapter': book_chapter,
+            'book_chapters': book_chapters,
             }
         return book_dict
 

@@ -8,3 +8,6 @@ A {
 A:hover {
 	color: black;
 }
+.btn-toolbar {
+	margin-bottom: 20px;
+}

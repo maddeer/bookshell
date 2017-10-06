@@ -94,7 +94,7 @@ def chapter(chapter_id):
     if not chapter_info:
         abort(404)
 
-    chapter_text = chapter_info['book_chapter'].chapter_text.replace('\n','\n<br>')
+    chapter_text = chapter_info['book_chapters'][0].chapter_text.replace('\n','\n<br>')
     return render_template(
                 'chapter.tmpl', 
                 username=username, 
@@ -113,6 +113,24 @@ def bookpdf(book_id):
         user_id = 0
 
     book_info = book.get_book_info(book_id=book_id, user_id=user_id)
+    book_file = make_pdf_book(book_info).replace('static/','')
+    print(book_file)
+    return app.send_static_file(book_file)
+
+
+@app.route('/chapterpdf/<int:chapter_id>')
+def chapterpdf(chapter_id):
+    chapter = Chapter()
+    username = session.get('username')
+    user_id = session.get('user_id')
+
+    if not user_id:
+        user_id = 0
+
+    book_info = chapter.get_chapter_info(chapter_id=chapter_id, user_id=user_id)
+    if not book_info:
+        abort(404)
+
     book_file = make_pdf_book(book_info).replace('static/','')
     print(book_file)
     return app.send_static_file(book_file)
