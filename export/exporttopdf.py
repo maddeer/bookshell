@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 
 from PyCRC.CRC32 import CRC32
 
-from pdfclass import PDF 
+from .pdfclass import PDF 
 from model.models import Book
-from translit import transliterate 
+from .translit import transliterate 
 
 
 
@@ -47,10 +47,10 @@ def make_pdf_book(book):
     crc32 = CRC32().calculate(book_text)
     pdf_file_name = '{}_{}_{}.pdf'.format(authors, pdf.book_name.replace(' ', '_'), crc32)
     pdf_file_name = transliterate(pdf_file_name)
-    pdf_file_name = os.path.join('..', pdf_file_name)
+    pdf_file_name = os.path.join('static', 'pdf', pdf_file_name)
 
     pdf.output(pdf_file_name, 'F')
-    return os.path.abspath(pdf_file_name)
+    return pdf_file_name
 
 
 if __name__ == '__main__': 

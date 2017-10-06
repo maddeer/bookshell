@@ -125,8 +125,6 @@ class Book(Base):
 
             book_chapters = Chapter.query.filter(
                 Chapter.book_id == book_id,
-            ).filter(
-                Chapter.date_to_open < date_now,
             ).order_by(
                 Chapter.chapter_number,
             ).all()
@@ -218,6 +216,49 @@ class Chapter(Base):
                                             self.book_id
                                             ))
 
+    def get_chapter_info(self, chapter_id, user_id, date_now=datetime.utcnow()):
+        chapter_info = self.query.filter(Chapter.id == chapter_id).first()
+        if not chapter_info: 
+            return None
+
+        book_info = Book.query.filter(Book.id == chapter_info.book_id).first()
+
+        authors = User.query.join(
+            Author,
+            Author.user_id == User.id,
+        ).filter(
+            Author.book_id == book_info.id,
+        ).all()
+
+        if user_id in [author.id for author in authors]:
+
+            book_chapter = self.query.filter(
+                Chapter.id == chapter_id,
+            ).all()
+
+        else:
+            book_chapter = self.query.outerjoin(
+                Grant,
+                Grant.allowed_chapter == Chapter.chapter_number,
+            ).filter(
+                Chapter.id == chapter_id,
+            ).filter(
+                or_(
+                    Chapter.date_to_open < date_now,
+                    Grant.user_id == user_id,
+                )
+            ).group_by(
+                Chapter.id,
+            ).order_by(
+                Chapter.chapter_number,
+            ).all()
+
+        book_dict = {
+            'book_data': book_info,
+            'book_authors': authors,
+            'book_chapter': book_chapter,
+            }
+        return book_dict
 
 class Grant(Base):
     __tablename__ = 'chapter_grant_allowed'

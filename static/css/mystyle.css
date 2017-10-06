@@ -2,3 +2,9 @@
 	width:64px;
 	height:64px;
 }
+A {
+	color: black;
+}
+A:hover {
+	color: black;
+}
