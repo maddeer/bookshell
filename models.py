@@ -7,8 +7,8 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-
-engine = create_engine('sqlite:///bookshell.db')
+DB_PATH = 'sqlite:///bookshell.db'
+engine = create_engine(DB_PATH)
 
 db_session = scoped_session(sessionmaker(bind=engine))
 
@@ -64,6 +64,8 @@ class Genre(Base):
 
     id = Column(Integer, primary_key=True)
     genre_name = Column(String(25), nullable=False)
+    genre = relationship('GenreBook', backref='genre')
+
 
     def __init__(self, genre_name=None):
         self.genre_name = genre_name
@@ -78,6 +80,8 @@ class Book(Base):
     id = Column(Integer, primary_key=True)
     book_name = Column(String(255), nullable=False)
     book_description = Column(Text)
+    book = relationship('GenreBook', backref='book')
+
 
     def __init__(self, book_name=None, book_description=None):
         self.book_name = book_name

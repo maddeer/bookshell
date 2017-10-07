@@ -87,27 +87,29 @@ def get_genre_dict():
     return genre_dict
 
 
-def safe_the_book(update):
-    if NEW_BOOK[update.message.chat.username].get('description') is None:
-        NEW_BOOK[update.message.chat.username]['description'] = '-'
-    if NEW_BOOK[update.message.chat.username].get('chapter_title') is None:
-        NEW_BOOK[update.message.chat.username]['chapter_title'] = 'Chapter1'
+def safe_the_book(
+        book_name,
+        text,
+        description='-',
+        chapter_title='Chapter1',
+        genre=[],
+        ):
     new_book = Book(
-        NEW_BOOK[update.message.chat.username]['name'],
-        NEW_BOOK[update.message.chat.username]['description'],
+        name,
+        description,
     )
     db_session.add(new_book)
     db_session.commit()
     genre_dict = get_genre_dict()
-    for book_genre in NEW_BOOK[update.message.chat.username]['genre']:
+    for book_genre in genre:
         new_book_genre = GenreBook(new_book.id, genre_dict[book_genre])
         db_session.add(new_book_genre)
     new_chapter = Chapter(
         new_book.id,
         1,
-        NEW_BOOK[update.message.chat.username]['chapter_title'],
+        chapter_title,
         datetime.now(),
-        NEW_BOOK[update.message.chat.username]['text_from_file'],
+        text_from_file,
     )
     db_session.add(new_chapter)
     db_session.commit()
@@ -186,7 +188,13 @@ def answer_to_user_command(bot, update):
     answer = ANSWERS[update.message.text]
     BOT_MOD[update.message.chat.username] = update.message.text
     if update.message.text == '/safe_my_book':
-        safe_the_book(update)
+        safe_the_book(
+            NEW_BOOK[update.message.chat.username]['name'],
+            NEW_BOOK[update.message.chat.username]['text_from_file'],
+            NEW_BOOK[update.message.chat.username]['description'],
+            NEW_BOOK[update.message.chat.username]['chapter_title'],
+            NEW_BOOK[update.message.chat.username]['genre'],
+        )
     elif update.message.text == '/chose_genres':
         genre_dict = get_genre_dict()
         for line in genre_dict.keys():
