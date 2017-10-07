@@ -11,15 +11,10 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-<<<<<<< HEAD:models.py
-DB_PATH = 'sqlite:///bookshell.db'
-engine = create_engine(DB_PATH)
-=======
 
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'bookshell.db')
 
 engine = create_engine('sqlite:///'+DATABASE_PATH)
->>>>>>> 385c79ab2e316f47fac030b14f385c82df24f869:model/models.py
 
 db_session = scoped_session(sessionmaker(bind=engine))
 
@@ -57,6 +52,7 @@ class User(Base):
     password = Column(String(255), nullable=False)
     full_name = Column(String(50), index=True)
     telegram_login = Column(String(50), index=True)
+    #email = Column(String(255), unique=True, index=True, nullable=False)
     role_id = Column(Integer, ForeignKey('user_role.id'))
 
     def __init__(
@@ -65,13 +61,15 @@ class User(Base):
                 password=None,
                 full_name=None,
                 telegram_login=None,
-                role=None
+                #email=None,
+                role=None,
                 ):
 
         self.user_name = user_name
         self.password = password
         self.full_name = full_name
         self.telegram_login = telegram_login
+        #self.email = email
         self.role = role
 
     def __repr__(self):
@@ -268,6 +266,14 @@ class Chapter(Base):
             'book_chapters': book_chapters,
             }
         return book_dict
+
+    @property
+    def short_text(self):
+        return self.chapter_text[:300] + '...'
+
+    @property
+    def chapter_text_br(self):
+        return self.chapter_text.replace('\n','\n<br>')
 
 class Grant(Base):
     __tablename__ = 'chapter_grant_allowed'

@@ -66,16 +66,10 @@ def book(book_id):
     if not book_info.get('book_data'):
         abort(404)
 
-    short_chapter = list()
-    for chapter in range(len(book_info['book_chapters'])):
-        short_chapter.append(book_info['book_chapters'][chapter].chapter_text[:300] + '...' )
-        #book_info['book_chapte'][chapter].chapter_text = book_info['book_chapters'][chapter].chapter_text[:300] + '...'
-
     return render_template(
                 'book.tmpl', 
                 username=username, 
                 book=book_info, 
-                short_chapter=short_chapter,
             )
 
 
@@ -89,17 +83,15 @@ def chapter(chapter_id):
     if not user_id:
         user_id = 0
 
-    chapter_info = chapter.get_chapter_info(chapter_id=chapter_id, user_id=user_id, date_now=date)
+    chapter_info = chapter.get_chapter_info(chapter_id, user_id, date)
 
     if not chapter_info:
         abort(404)
 
-    chapter_text = chapter_info['book_chapters'][0].chapter_text.replace('\n','\n<br>')
     return render_template(
                 'chapter.tmpl', 
                 username=username, 
                 book=chapter_info, 
-                chapter_text=chapter_text,
             )
 
 

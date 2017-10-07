@@ -44,6 +44,7 @@ def make_pdf_book(book):
         pdf.title = chapter.chapter_title
         pdf.print_chapter(chapter.chapter_number, chapter.chapter_title, chapter.chapter_text)
         book_text += chapter.chapter_text
+
     crc32 = CRC32().calculate(book_text)
     pdf_file_name = '{}_{}_{}.pdf'.format(authors, pdf.book_name.replace(' ', '_'), crc32)
     pdf_file_name = transliterate(pdf_file_name)

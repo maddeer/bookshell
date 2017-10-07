@@ -22,20 +22,20 @@
 	</div>
 </div>
 <div class="container">
-{% for item in range(book['book_chapters']|length) %}
+{% for item in book['book_chapters'] %}
 	<div class="media">
 	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
 	  <div class="media-body">
 		<h4 class="mt-0">
-			<a  href='/chapter/{{ book['book_chapters'][item].id }}'>
-			Глава: {{ book['book_chapters'][item].chapter_title }}
+			<a  href='/chapter/{{ item.id }}'>
+			Глава: {{ item.chapter_title }}
 			</a>
 		</h4>
-		<a href='/chapter/{{ book['book_chapters'][item].id }}'>{{ short_chapter[item] }}</a>
+		<a href='/chapter/{{ item.id }}'>{{ item.short_text }}</a>
 		<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
 		  <div class="btn-group mr-2" role="group" aria-label="First group">
 			<button type="button" class="btn btn-secondary" onclick="
-			window.location.href = '/chapterpdf/{{ book['book_chapters'][item].id }}';">pdf</button>
+			window.location.href = '/chapterpdf/{{ item.id }}';">pdf</button>
 			<button type="button" class="btn btn-secondary" onclick="">fb2</button>
 			<button type="button" class="btn btn-secondary" onclick="">ebub</button>
 			<button type="button" class="btn btn-secondary" onclick="">mobi</button>
