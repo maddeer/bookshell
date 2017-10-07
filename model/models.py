@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+import os
+from hashlib import sha384
+from binascii import hexlify
+
 from datetime import datetime
 
 from sqlalchemy import create_engine, or_
@@ -7,14 +11,29 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
+<<<<<<< HEAD:models.py
 DB_PATH = 'sqlite:///bookshell.db'
 engine = create_engine(DB_PATH)
+=======
+
+DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'bookshell.db')
+
+engine = create_engine('sqlite:///'+DATABASE_PATH)
+>>>>>>> 385c79ab2e316f47fac030b14f385c82df24f869:model/models.py
 
 db_session = scoped_session(sessionmaker(bind=engine))
 
 Base = declarative_base()
 
 Base.query = db_session.query_property()
+
+def make_hash(passwd, salt=None):
+    if not salt: 
+        salt=hexlify(os.urandom(16)).decode('utf-8')
+
+    pass_salt = salt + passwd
+    password_hash = sha384(pass_salt.encode('utf-8')).hexdigest()
+    return salt + password_hash
 
 
 class Role(Base):
@@ -57,6 +76,17 @@ class User(Base):
 
     def __repr__(self):
         return('<User {} {}>'.format(self.user_name, self.full_name))
+
+    def check_user_pass(self, user_id, password=None):
+        user_info = self.query.filter( User.id == user_id ).first()
+
+        salt = user_info.password[0:32]
+        salt_hash = make_hash(password, salt)
+
+        if user_info.password == salt_hash:
+            return True
+        else:
+            return False
 
 
 class Genre(Base):
@@ -104,8 +134,6 @@ class Book(Base):
 
             book_chapters = Chapter.query.filter(
                 Chapter.book_id == book_id,
-            ).filter(
-                Chapter.date_to_open < date_now,
             ).order_by(
                 Chapter.chapter_number,
             ).all()
@@ -197,6 +225,49 @@ class Chapter(Base):
                                             self.book_id
                                             ))
 
+    def get_chapter_info(self, chapter_id, user_id, date_now=datetime.utcnow()):
+        chapter_info = self.query.filter(Chapter.id == chapter_id).first()
+        if not chapter_info: 
+            return None
+
+        book_info = Book.query.filter(Book.id == chapter_info.book_id).first()
+
+        authors = User.query.join(
+            Author,
+            Author.user_id == User.id,
+        ).filter(
+            Author.book_id == book_info.id,
+        ).all()
+
+        if user_id in [author.id for author in authors]:
+
+            book_chapters = self.query.filter(
+                Chapter.id == chapter_id,
+            ).all()
+
+        else:
+            book_chapters = self.query.outerjoin(
+                Grant,
+                Grant.allowed_chapter == Chapter.chapter_number,
+            ).filter(
+                Chapter.id == chapter_id,
+            ).filter(
+                or_(
+                    Chapter.date_to_open < date_now,
+                    Grant.user_id == user_id,
+                )
+            ).group_by(
+                Chapter.id,
+            ).order_by(
+                Chapter.chapter_number,
+            ).all()
+
+        book_dict = {
+            'book_data': book_info,
+            'book_authors': authors,
+            'book_chapters': book_chapters,
+            }
+        return book_dict
 
 class Grant(Base):
     __tablename__ = 'chapter_grant_allowed'

@@ -1,0 +1,48 @@
+{% include "header.tmpl" %}
+
+<div class="container">
+<h1>{{ book['book_data'].book_name }}</h1>
+	<div class="media">
+	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
+	  <div class="media-body">
+			{{ book['book_data'].book_description }}
+		<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+		  <div class="btn-group mr-2" role="group" aria-label="First group">
+			<button type="button" class="btn btn-secondary" 
+			onclick="window.location.href = '/bookpdf/{{ book['book_data'].id }}';">pdf</button>
+			<button type="button" class="btn btn-secondary" onclick="">fb2</button>
+			<button type="button" class="btn btn-secondary" onclick="">ebub</button>
+			<button type="button" class="btn btn-secondary" onclick="">mobi</button>
+		  </div>
+		</div>
+	  </div>
+	  <!--
+	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-document-pdf.svg" alt="book image">
+	  -->
+	</div>
+</div>
+<div class="container">
+{% for item in range(book['book_chapters']|length) %}
+	<div class="media">
+	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
+	  <div class="media-body">
+		<h4 class="mt-0">
+			<a  href='/chapter/{{ book['book_chapters'][item].id }}'>
+			Глава: {{ book['book_chapters'][item].chapter_title }}
+			</a>
+		</h4>
+		<a href='/chapter/{{ book['book_chapters'][item].id }}'>{{ short_chapter[item] }}</a>
+		<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+		  <div class="btn-group mr-2" role="group" aria-label="First group">
+			<button type="button" class="btn btn-secondary" onclick="
+			window.location.href = '/chapterpdf/{{ book['book_chapters'][item].id }}';">pdf</button>
+			<button type="button" class="btn btn-secondary" onclick="">fb2</button>
+			<button type="button" class="btn btn-secondary" onclick="">ebub</button>
+			<button type="button" class="btn btn-secondary" onclick="">mobi</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+{% endfor %}
+</div>
+{% include "footer.tmpl" %}

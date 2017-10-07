@@ -1,0 +1,16 @@
+{% include "header.tmpl" %}
+
+	<h1>Новинки на Книжной полке</h1>
+<div class="container">
+{% for item in book %}
+	<div class="media">
+	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
+	  <div class="media-body">
+		<h5 class="mt-0"><a  href='/book/{{ item.id }}'>{{ item.book_name }}</a></h5>
+		{{ item.book_description }}
+	  </div>
+	</div>
+{% endfor %}
+</div>
+
+{% include "footer.tmpl" %}

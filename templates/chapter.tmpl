@@ -1,0 +1,17 @@
+{% include "header.tmpl" %}
+
+<div class="container">
+  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
+<h1>{{ book['book_data'].book_name }}</h1>
+<div class="container">
+	<div class="media">
+	  <div class="media-body">
+		<h4 class="mt-0">{{ book['book_chapters'][0].chapter_title }}</h4>
+		{{ chapter_text }}
+	  </div>
+	</div>
+</div>
+<div>
+{% include "footer.tmpl" %}
+
+
