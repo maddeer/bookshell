@@ -24,8 +24,8 @@ logging.basicConfig(
     filename='log/bot.log',
 )
 
-MAIN_MENU, CREATE_A_BOOK, ADD_CHAPTER_NAME, ADD_NEW_GENRE, CHOSE_A_NAME,\
-    CHOSE_GENRES, SAVE_MY_BOOK, UPLOAD_A_TEXT, ADD_BOOK_DESCRIPTION = range(9)
+MAIN_MENU, CREATE_A_BOOK, add_chap_name, add_n_genre, chose_name,\
+    CHOSE_GENRES, SAVE_MY_BOOK, UPLOAD_A_TEXT, add_descript = range(9)
 
 NEW_BOOK = {}
 GENRE = {}
@@ -39,40 +39,37 @@ ANSWERS = {
     ''', MAIN_MENU],
     '/add_a_book': ['''
     Выберете один или несколько жанров книги, /chose_genres
-    Укажите название книги /chose_a_name
-    Название первой главы /add_a_chapter_name
-    Напишите описние книги /add_book_description
+    Укажите название книги /chose_name
+    Название первой главы /add_chap_name
+    Напишите описние книги /add_descript
     Загрузите текст книги или первой главы /upload_a_text
     ''', CREATE_A_BOOK],
-    '/add_new_genre': ['''
+    '/add_n_genre': ['''
     Укажите жанр
-    ''', ADD_NEW_GENRE],
-    '/chose_a_name': ['''
+    ''', add_n_genre],
+    '/chose_name': ['''
     Укажите название книги
-    ''', CHOSE_A_NAME],
+    ''', chose_name],
     '/chose_genres': ['''
     Выберете один или несколько жанров из предложенных,
     или укажите свой /add_a_genre
-
     Список жанров
     ''', CHOSE_GENRES],
     '/safe_my_book': ['''
     Книга успещно добавленна
     ''', SAVE_MY_BOOK],
-    '/add_chapter_name': ['''
+    '/add_chap_name': ['''
     Укажите название главы
-    ''', ADD_CHAPTER_NAME],
+    ''', add_chap_name],
     '/upload_a_text': ['''
     Перешлите мне содержимое главы в формате .docx
     Если вам нужно добавить еще главы,
     вы можете сделать это в режиме редактирование книги
     Спасибо!
-
     ''', UPLOAD_A_TEXT],
-    '/add_book_description': ['''
+    '/add_descript': ['''
     Введите описание книги
-    ''', ADD_BOOK_DESCRIPTION],
-
+    ''', add_descript],
 }
 
 
@@ -87,42 +84,96 @@ def main():
     updater = Updater(TELEGRAMM_KEY)
     dp = updater.dispatcher
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', answer_to_user_command)],
+        entry_points=[CommandHandler(
+            'start',
+            command_react,
+            pass_user_data=True)],
         states={
             MAIN_MENU: [
-                CommandHandler('add_a_book', answer_to_user_command),
-                CommandHandler('change_a_book', answer_to_user_command),
-                CommandHandler('gind_a_book', answer_to_user_command)
+                CommandHandler(
+                    'add_a_book',
+                    command_react,
+                    pass_user_data=True),
+                CommandHandler(
+                    'change_a_book',
+                    command_react,
+                    pass_user_data=True),
+                CommandHandler(
+                    'gind_a_book',
+                    command_react,
+                    pass_user_data=True)
             ],
             CREATE_A_BOOK: [
-                CommandHandler('chose_genres', answer_to_user_command),
-                CommandHandler('chose_a_name', answer_to_user_command),
-                CommandHandler('add_a_chapter_name', answer_to_user_command),
-                CommandHandler('upload_a_text', answer_to_user_command),
-                CommandHandler('add_book_description', answer_to_user_command),
-                CommandHandler('save_my_book', answer_to_user_command),
+                CommandHandler(
+                    'chose_genres',
+                    command_react,
+                    pass_user_data=True),
+                CommandHandler(
+                    'chose_name',
+                    command_react,
+                    pass_user_data=True),
+                CommandHandler(
+                    'add_chap_name',
+                    command_react,
+                    pass_user_data=True),
+                CommandHandler(
+                    'upload_a_text',
+                    command_react,
+                    pass_user_data=True),
+                CommandHandler(
+                    'add_descript',
+                    command_react,
+                    pass_user_data=True),
+                CommandHandler(
+                    'save_my_book',
+                    command_react,
+                    pass_user_data=True),
             ],
             CHOSE_GENRES: [
-                CommandHandler('add_new_genre', answer_to_user_command),
-                MessageHandler(Filters.text, get_genres),
+                CommandHandler(
+                    'add_a_genre',
+                    command_react,
+                    pass_user_data=True),
+                MessageHandler(
+                    Filters.text,
+                    get_genres,
+                    pass_user_data=True),
             ],
-            ADD_NEW_GENRE: [
-                MessageHandler(Filters.text, add_new_genre),
+            add_n_genre: [
+                MessageHandler(
+                    Filters.text,
+                    add_n_genre,
+                    pass_user_data=True),
             ],
-            CHOSE_A_NAME: [
-                 MessageHandler(Filters.text, chose_a_name),
+            chose_name: [
+                 MessageHandler(
+                    Filters.text,
+                    chose_name,
+                    pass_user_data=True),
             ],
-            ADD_BOOK_DESCRIPTION: [
-                 MessageHandler(Filters.text, add_book_description),
+            add_descript: [
+                 MessageHandler(
+                    Filters.text,
+                    add_descript,
+                    pass_user_data=True),
             ],
-            ADD_CHAPTER_NAME: [
-                 MessageHandler(Filters.text, add_chapter_name),
+            add_chap_name: [
+                 MessageHandler(
+                    Filters.text,
+                    add_chap_name,
+                    pass_user_data=True),
             ],
             UPLOAD_A_TEXT: [
-                MessageHandler(Filters.document, download_file),
+                MessageHandler(
+                    Filters.document,
+                    download_file,
+                    pass_user_data=True),
             ],
         },
-        fallbacks=[CommandHandler('cancel', cancel)]
+        fallbacks=[CommandHandler(
+            'cancel',
+            cancel,
+            pass_user_data=True)]
     )
 
     dp.add_handler(conv_handler)
@@ -140,13 +191,12 @@ def start(bot, update):
     или выбрать книгу для чтения /chose_a_book
     '''
     update.message.reply_text(answer)
-
     return MAIN_MENU
 
 
-def get_genres(bot, update):
+def get_genres(bot, update, user_data):
     user_text = update.message.text
-    NEW_BOOK[update.message.chat.username]['genre'] = []
+    user_data['genre'] = []
     genre_dict = get_genre_dict()
     user_genres = re.split(';|,', user_text)
     not_in_genre_list = []
@@ -154,7 +204,7 @@ def get_genres(bot, update):
         if genre_dict.get(user_genre.lower()) is None:
             not_in_genre_list.append(user_genre)
     if not_in_genre_list == []:
-        NEW_BOOK[update.message.chat.username]['genre'] += user_genres
+        user_data['genre'] += user_genres
     else:
         update.message.reply_text(
             'Вы ввели жанры которых нет в списке {}'.format(
@@ -164,11 +214,11 @@ def get_genres(bot, update):
     update.message.reply_text(
         '''
         Вы выбрали следующие жанры {}
-        '''.format(NEW_BOOK[update.message.chat.username]['genre']))
+        '''.format(user_data['genre']))
     return CREATE_A_BOOK
 
 
-def add_new_genre(bot, update):
+def add_a_genre(bot, update):
     user_text = update.message.text
     genre_dict = get_genre_dict()
     if user_text not in genre_dict.keys():
@@ -184,35 +234,32 @@ def add_new_genre(bot, update):
     return CHOSE_GENRES
 
 
-def chose_a_name(bot, update):
-    NEW_BOOK[update.message.chat.username]['name'] = update.message.text
+def chose_name(bot, update, user_data):
+    user_data['name'] = update.message.text
     return CREATE_A_BOOK
 
 
-def add_book_description(bot, update):
-    NEW_BOOK[update.message.chat.username]['description'] = update.message.text
+def add_descript(bot, update, user_data):
+    user_data['description'] = update.message.text
     return CREATE_A_BOOK
 
 
-def add_chapter_name(bot, update):
-    NEW_BOOK[update.message.chat.username]['chapter_name'] =\
+def add_chap_name(bot, update, user_data):
+    user_data['chapter_name'] =\
         update.message.text
     return CREATE_A_BOOK
 
 
-def answer_to_user_command(bot, update):
+def command_react(bot, update, user_data):
     global ANSWERS
-    global NEW_BOOK
-    if NEW_BOOK.get(update.message.chat.username) is None:
-        NEW_BOOK[update.message.chat.username] = {}
     answer = ANSWERS[update.message.text][0]
     if update.message.text == '/safe_my_book':
         safe_the_book(
-            NEW_BOOK[update.message.chat.username]['name'],
-            NEW_BOOK[update.message.chat.username]['text_from_file'],
-            NEW_BOOK[update.message.chat.username]['description'],
-            NEW_BOOK[update.message.chat.username]['chapter_name'],
-            NEW_BOOK[update.message.chat.username]['genre'],
+            user_data['name'],
+            user_data['text_from_file'],
+            user_data['description'],
+            user_data['chapter_name'],
+            user_data['genre'],
         )
     elif update.message.text == '/chose_genres':
         genre_dict = get_genre_dict()
@@ -223,14 +270,14 @@ def answer_to_user_command(bot, update):
     return ANSWERS[update.message.text][1]
 
 
-def download_file(bot, update):
+def download_file(bot, update, user_data):
     global NEW_BOOK
-    if NEW_BOOK[update.message.chat.username].get('name') is not None:
+    if user_data.get('name') is not None:
         user_file = bot.get_file(update.message.document.file_id)
         file_name = 'books/' + str(datetime.now()) + '_' +\
             update.message.chat.username + '.file'
         user_file.download(file_name)
-        NEW_BOOK[update.message.chat.username]['text_from_file'] =\
+        user_data['text_from_file'] =\
             modules_bookshell.docx_to_text(file_name)
         update.message.reply_text(
             '''Спасибо! Вы уверены что хотите добавить книгу на наш портал?
@@ -238,7 +285,8 @@ def download_file(bot, update):
     return MAIN_MENU
 
 
-def cancel(bot, update):
+def cancel(bot, update, user_data):
+    user_data.clear()
     return ConversationHandler.END
 
 
