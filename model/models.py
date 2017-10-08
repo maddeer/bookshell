@@ -11,15 +11,11 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-<<<<<<< HEAD:models.py
-DB_PATH = 'sqlite:///bookshell.db'
-engine = create_engine(DB_PATH)
-=======
+
 
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'bookshell.db')
 
 engine = create_engine('sqlite:///'+DATABASE_PATH)
->>>>>>> 385c79ab2e316f47fac030b14f385c82df24f869:model/models.py
 
 db_session = scoped_session(sessionmaker(bind=engine))
 
