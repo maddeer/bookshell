@@ -27,7 +27,6 @@ logging.basicConfig(
 MAIN_MENU, CREATE_A_BOOK, add_chap_name, add_n_genre, chose_name,\
     CHOSE_GENRES, SAVE_MY_BOOK, UPLOAD_A_TEXT, add_descript = range(9)
 
-NEW_BOOK = {}
 GENRE = {}
 ANSWERS = {
     '/start': ['''
@@ -271,7 +270,6 @@ def command_react(bot, update, user_data):
 
 
 def download_file(bot, update, user_data):
-    global NEW_BOOK
     if user_data.get('name') is not None:
         user_file = bot.get_file(update.message.document.file_id)
         file_name = 'books/' + str(datetime.now()) + '_' +\
