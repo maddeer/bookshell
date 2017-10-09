@@ -8,9 +8,11 @@ from datetime import datetime
 import magic
 import configparser
 
-import modules_bookshell
-from model.models import Genre, db_session, Book, GenreBook, Chapter
+#import modules_bookshell
+from modules_bookshell import save_the_book, docx_to_text, get_genre_dict
+from model.models import Genre, db_session, Book, GenreBook, Chapter, DATABASE_PATH
 
+#DATABASE_PATH = 'bookshell.db'
 
 config = configparser.ConfigParser()
 config.sections()
@@ -24,8 +26,8 @@ logging.basicConfig(
     filename='log/bot.log',
 )
 
-MAIN_MENU, CREATE_A_BOOK, add_chap_name, add_n_genre, chose_name,\
-    CHOSE_GENRES, SAVE_MY_BOOK, UPLOAD_A_TEXT, add_descript = range(9)
+MAIN_MENU, CREATE_A_BOOK, ADD_CHAPTER_NAME, ADD_A_GENRE, CHOSE_NAME,\
+    CHOSE_GENRES, SAVE_MY_BOOK, UPLOAD_A_TEXT, ADD_DESCRIPTION, SAVE_BOOK = range(10)
 
 GENRE = {}
 ANSWERS = {
@@ -40,43 +42,36 @@ ANSWERS = {
     Выберете один или несколько жанров книги, /chose_genres
     Укажите название книги /chose_name
     Название первой главы /add_chap_name
-    Напишите описние книги /add_descript
+    Напишите описние книги /add_description
     Загрузите текст книги или первой главы /upload_a_text
     ''', CREATE_A_BOOK],
-    '/add_n_genre': ['''
+    '/add_a_genre': ['''
     Укажите жанр
-    ''', add_n_genre],
+    ''', ADD_A_GENRE],
     '/chose_name': ['''
     Укажите название книги
-    ''', chose_name],
+    ''', CHOSE_NAME],
     '/chose_genres': ['''
     Выберете один или несколько жанров из предложенных,
     или укажите свой /add_a_genre
     Список жанров
     ''', CHOSE_GENRES],
-    '/safe_my_book': ['''
+    '/save_my_book': ['''
     Книга успещно добавленна
     ''', SAVE_MY_BOOK],
     '/add_chap_name': ['''
     Укажите название главы
-    ''', add_chap_name],
+    ''', ADD_CHAPTER_NAME],
     '/upload_a_text': ['''
     Перешлите мне содержимое главы в формате .docx
     Если вам нужно добавить еще главы,
     вы можете сделать это в режиме редактирование книги
     Спасибо!
     ''', UPLOAD_A_TEXT],
-    '/add_descript': ['''
+    '/add_description': ['''
     Введите описание книги
-    ''', add_descript],
+    ''', ADD_DESCRIPTION],
 }
-
-
-def get_genre_dict():
-    genre_dict = {}
-    for line in Genre.query.all():
-            genre_dict[line.genre_name] = line.id
-    return genre_dict
 
 
 def main():
@@ -120,7 +115,11 @@ def main():
                     command_react,
                     pass_user_data=True),
                 CommandHandler(
-                    'add_descript',
+                    'add_description',
+                    command_react,
+                    pass_user_data=True),
+                CommandHandler(
+                    'save_my_book',
                     command_react,
                     pass_user_data=True),
                 CommandHandler(
@@ -138,25 +137,25 @@ def main():
                     get_genres,
                     pass_user_data=True),
             ],
-            add_n_genre: [
+            ADD_A_GENRE: [
                 MessageHandler(
                     Filters.text,
-                    add_n_genre,
+                    add_a_genre,
                     pass_user_data=True),
             ],
-            chose_name: [
+            CHOSE_NAME: [
                  MessageHandler(
                     Filters.text,
                     chose_name,
                     pass_user_data=True),
             ],
-            add_descript: [
+            ADD_DESCRIPTION: [
                  MessageHandler(
                     Filters.text,
-                    add_descript,
+                    add_description,
                     pass_user_data=True),
             ],
-            add_chap_name: [
+            ADD_CHAPTER_NAME: [
                  MessageHandler(
                     Filters.text,
                     add_chap_name,
@@ -217,7 +216,7 @@ def get_genres(bot, update, user_data):
     return CREATE_A_BOOK
 
 
-def add_a_genre(bot, update):
+def add_a_genre(bot, update, user_data):
     user_text = update.message.text
     genre_dict = get_genre_dict()
     if user_text not in genre_dict.keys():
@@ -238,7 +237,7 @@ def chose_name(bot, update, user_data):
     return CREATE_A_BOOK
 
 
-def add_descript(bot, update, user_data):
+def add_description(bot, update, user_data):
     user_data['description'] = update.message.text
     return CREATE_A_BOOK
 
@@ -252,14 +251,13 @@ def add_chap_name(bot, update, user_data):
 def command_react(bot, update, user_data):
     global ANSWERS
     answer = ANSWERS[update.message.text][0]
-    if update.message.text == '/safe_my_book':
-        safe_the_book(
-            user_data['name'],
-            user_data['text_from_file'],
-            user_data['description'],
-            user_data['chapter_name'],
-            user_data['genre'],
-        )
+    if update.message.text == '/save_my_book':
+        save_the_book(
+            user_data.get('name'),
+            user_data.get('text_from_file'),
+            user_data.get('description'),
+            user_data.get('chapter_name'),
+            user_data.get('genre'))
     elif update.message.text == '/chose_genres':
         genre_dict = get_genre_dict()
         for line in genre_dict.keys():
@@ -276,11 +274,11 @@ def download_file(bot, update, user_data):
             update.message.chat.username + '.file'
         user_file.download(file_name)
         user_data['text_from_file'] =\
-            modules_bookshell.docx_to_text(file_name)
+            docx_to_text(file_name)
         update.message.reply_text(
             '''Спасибо! Вы уверены что хотите добавить книгу на наш портал?
                Нажмите /save_my_book''')
-    return MAIN_MENU
+    return CREATE_A_BOOK
 
 
 def cancel(bot, update, user_data):
