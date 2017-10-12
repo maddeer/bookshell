@@ -6,7 +6,11 @@
 	<div class="media">
 	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
 	  <div class="media-body">
-		<h5 class="mt-0"><a  href='/book/{{ item.id }}'>{{ item.book_name }}</a></h5>
+		<h5 class="mt-0"><a  href='/book/{{ item.id }}'>{{ item.book_name }}</a>
+		<span class="badge badge-secondary">New</span></h5>
+	 {% for author in item.authors %}
+		<h6>{{ author.user.full_name }}</h6>
+	 {% endfor %}
 		{{ item.book_description }}
 	  </div>
 	</div>

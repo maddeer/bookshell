@@ -6,7 +6,7 @@ from binascii import hexlify
 
 from datetime import datetime
 
-from sqlalchemy import create_engine, or_
+from sqlalchemy import create_engine, or_, literal_column
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -23,7 +23,7 @@ Base = declarative_base()
 Base.query = db_session.query_property()
 
 def make_hash(passwd, salt=None):
-    if not salt: 
+    if not salt:
         salt=hexlify(os.urandom(16)).decode('utf-8')
 
     pass_salt = salt + passwd
@@ -52,7 +52,7 @@ class User(Base):
     password = Column(String(255), nullable=False)
     full_name = Column(String(50), index=True)
     telegram_login = Column(String(50), index=True)
-    #email = Column(String(255), unique=True, index=True, nullable=False)
+    email = Column(String(255), unique=True, index=True, nullable=False)
     role_id = Column(Integer, ForeignKey('user_role.id'))
 
     def __init__(
@@ -61,7 +61,7 @@ class User(Base):
                 password=None,
                 full_name=None,
                 telegram_login=None,
-                #email=None,
+                email=None,
                 role=None,
                 ):
 
@@ -69,7 +69,7 @@ class User(Base):
         self.password = password
         self.full_name = full_name
         self.telegram_login = telegram_login
-        #self.email = email
+        self.email = email
         self.role = role
 
     def __repr__(self):
@@ -109,6 +109,8 @@ class Book(Base):
     book_name = Column(String(255), nullable=False)
     book_description = Column(Text)
     book = relationship('GenreBook', backref='book')
+    chapters = relationship('Chapter', backref='chapter')
+    authors = relationship('Author', backref='authors')
 
 
     def __init__(self, book_name=None, book_description=None):
@@ -117,6 +119,16 @@ class Book(Base):
 
     def __repr__(self):
         return('<Book {} {}>'.format(self.id, self.book_name))
+
+    @staticmethod
+    def get_book(book_id):
+        book_chapters = Chapter.query.filter(
+            Chapter.book_id == book_id,
+        ).order_by(
+            Chapter.chapter_number,
+        ).all()
+
+        return book_chapters
 
     def get_book_info(self, book_id, user_id, date_now=datetime.utcnow()):
         book_info = self.query.filter(Book.id == book_id).first()
@@ -130,27 +142,52 @@ class Book(Base):
 
         if user_id in [author.id for author in authors]:
 
-            book_chapters = Chapter.query.filter(
+            book_chapters = Chapter.query.add_column(
+                literal_column("'allow'").label('access')
+            ).filter(
                 Chapter.book_id == book_id,
             ).order_by(
                 Chapter.chapter_number,
             ).all()
 
         else:
-            book_chapters = Chapter.query.outerjoin(
+            allowed = Chapter.query.add_column(
+                literal_column("'allow'").label('access')
+            ).outerjoin(
                 Grant,
-                Grant.allowed_chapter == Chapter.chapter_number,
+                Grant.allowed_chapter == Chapter.id
+            ).filter(
+                or_(
+                    Grant.user_id == 2,
+                    Chapter.date_to_open < datetime.utcnow()
+                    )
+            ).filter(
+                Chapter.book_id == book_id,
+            )
+
+            not_in = db_session.query(
+                Chapter.id
+            ).outerjoin(
+                Grant,
+                Grant.allowed_chapter == Chapter.id
             ).filter(
                 Chapter.book_id == book_id,
             ).filter(
                 or_(
-                    Chapter.date_to_open < date_now,
                     Grant.user_id == user_id,
-                )
-            ).group_by(
-                Chapter.id,
+                    Chapter.date_to_open < datetime.utcnow()
+            ))
+
+            denied = Chapter.query.add_column(
+                literal_column("'deny'").label('access')
+            ).filter(
+                ~Chapter.id.in_(not_in)
+            )
+
+            book_chapters = allowed.union(
+                denied
             ).order_by(
-                Chapter.chapter_number,
+                Chapter.chapter_number
             ).all()
 
         book_dict = {
@@ -182,6 +219,7 @@ class Author(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'))
     book_id = Column(Integer, ForeignKey('book.id'))
+    user = relationship('User', uselist=False, backref='user')
 
     def __init__(self, user_id=None, book_id=None):
         self.user_id = user_id
@@ -200,6 +238,7 @@ class Chapter(Base):
     chapter_title = Column(String(255))
     date_to_open = Column(DateTime)
     chapter_text = Column(Text)
+    alowed_user = relationship('Grant', backref='alowed')
 
     def __init__(
                 self,
@@ -225,7 +264,7 @@ class Chapter(Base):
 
     def get_chapter_info(self, chapter_id, user_id, date_now=datetime.utcnow()):
         chapter_info = self.query.filter(Chapter.id == chapter_id).first()
-        if not chapter_info: 
+        if not chapter_info:
             return None
 
         book_info = Book.query.filter(Book.id == chapter_info.book_id).first()
@@ -239,25 +278,52 @@ class Chapter(Base):
 
         if user_id in [author.id for author in authors]:
 
-            book_chapters = self.query.filter(
+            book_chapters = self.query.add_column(
+                literal_column("'allow'").label('access')
+            ).filter(
                 Chapter.id == chapter_id,
             ).all()
 
         else:
-            book_chapters = self.query.outerjoin(
+            allowed = self.query.add_column(
+                literal_column("'allow'").label('access')
+            ).outerjoin(
                 Grant,
-                Grant.allowed_chapter == Chapter.chapter_number,
+                Grant.allowed_chapter == Chapter.id
+            ).filter(
+                or_(
+                    Grant.user_id == user_id,
+                    Chapter.date_to_open < datetime.utcnow()
+                    )
+            ).filter(
+                Chapter.id == chapter_id,
+            )
+
+            not_in = db_session.query(
+                Chapter.id
+            ).outerjoin(
+                Grant,
+                Grant.allowed_chapter == Chapter.id
             ).filter(
                 Chapter.id == chapter_id,
             ).filter(
                 or_(
-                    Chapter.date_to_open < date_now,
                     Grant.user_id == user_id,
-                )
-            ).group_by(
-                Chapter.id,
+                    Chapter.date_to_open < datetime.utcnow()
+            ))
+
+            denied = Chapter.query.add_column(
+                literal_column("'deny'").label('access')
+            ).filter(
+                Chapter.id == chapter_id,
+            ).filter(
+                ~Chapter.id.in_(not_in)
+            )
+
+            book_chapters = allowed.union(
+                denied
             ).order_by(
-                Chapter.chapter_number,
+                Chapter.chapter_number
             ).all()
 
         book_dict = {
@@ -274,6 +340,7 @@ class Chapter(Base):
     @property
     def chapter_text_br(self):
         return self.chapter_text.replace('\n','\n<br>')
+
 
 class Grant(Base):
     __tablename__ = 'chapter_grant_allowed'

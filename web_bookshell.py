@@ -16,7 +16,7 @@ def index():
     #username = request.cookies.get('username')
     book = Book()
     offset = request.args.get('next')
-    if not offset: 
+    if not offset:
         offset = 0
     book_info = book.query.limit(25).offset(offset).all()
     username = session.get('username')
@@ -31,7 +31,7 @@ def login():
     password = request.form.get('password')
 
     user_data = user.query.filter( User.user_name == login ).first()
-    if not user_data: 
+    if not user_data:
         return render_template('login.tmpl', login='No login')
 
     if user.check_user_pass(user_id=user_data.id, password=password):
@@ -67,9 +67,9 @@ def book(book_id):
         abort(404)
 
     return render_template(
-                'book.tmpl', 
-                username=username, 
-                book=book_info, 
+                'book.tmpl',
+                username=username,
+                book=book_info,
             )
 
 
@@ -89,9 +89,9 @@ def chapter(chapter_id):
         abort(404)
 
     return render_template(
-                'chapter.tmpl', 
-                username=username, 
-                book=chapter_info, 
+                'chapter.tmpl',
+                username=username,
+                book=chapter_info,
             )
 
 
@@ -106,7 +106,6 @@ def bookpdf(book_id):
 
     book_info = book.get_book_info(book_id=book_id, user_id=user_id)
     book_file = make_pdf_book(book_info).replace('static/','')
-    print(book_file)
     return app.send_static_file(book_file)
 
 
@@ -124,11 +123,28 @@ def chapterpdf(chapter_id):
         abort(404)
 
     book_file = make_pdf_book(book_info).replace('static/','')
-    print(book_file)
     return app.send_static_file(book_file)
 
+@app.route('/profile/', defaults={'user_id': None})
+@app.route('/profile/<int:user_id>')
+def profile(user_id=None):
+    username = session.get('username')
+    session_user_id = session.get('user_id')
+    owner=False
 
-if __name__ == '__main__':                                                                                                       
+    if not user_id:
+        user_id = session_user_id
+
+    if session_user_id == user_id:
+        owner=True
+
+    user = User()
+    user_data = user.query.filter( User.id == user_id ).first()
+
+    return render_template('user_profile.tmpl', username=username, user_data=user_data, owner=True)
+
+
+if __name__ == '__main__':                                                                                                      
     app.secret_key = b'o7E\xd7\xf8q\xdc#\xfe\xae\x11\xba\x91n.\x86\xe8.q<@I?\xc2'
     app.run(port=5000, debug=True)
 

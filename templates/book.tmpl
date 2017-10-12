@@ -5,6 +5,9 @@
 	<div class="media">
 	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
 	  <div class="media-body">
+	 {% for author in book['book_authors'] %}
+		<h6>{{ author.full_name }}</h6>
+	 {% endfor %}
 			{{ book['book_data'].book_description }}
 		<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
 		  <div class="btn-group mr-2" role="group" aria-label="First group">
@@ -27,15 +30,15 @@
 	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
 	  <div class="media-body">
 		<h4 class="mt-0">
-			<a  href='/chapter/{{ item.id }}'>
-			Глава: {{ item.chapter_title }}
+			<a  href='/chapter/{{ item[0].id }}'>
+			 <span class="badge badge-light">Глава:</span> {{ item[0].chapter_title }}
 			</a>
 		</h4>
-		<a href='/chapter/{{ item.id }}'>{{ item.short_text }}</a>
+		<a href='/chapter/{{ item[0].id }}'>{{ item[0].short_text }}</a>
 		<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
 		  <div class="btn-group mr-2" role="group" aria-label="First group">
 			<button type="button" class="btn btn-secondary" onclick="
-			window.location.href = '/chapterpdf/{{ item.id }}';">pdf</button>
+			window.location.href = '/chapterpdf/{{ item[0].id }}';">pdf</button>
 			<button type="button" class="btn btn-secondary" onclick="">fb2</button>
 			<button type="button" class="btn btn-secondary" onclick="">ebub</button>
 			<button type="button" class="btn btn-secondary" onclick="">mobi</button>

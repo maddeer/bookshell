@@ -11,7 +11,6 @@ from model.models import Book
 from .translit import transliterate 
 
 
-
 def make_pdf_book(book): 
     pdf = PDF()
 
@@ -41,9 +40,18 @@ def make_pdf_book(book):
 
     book_text = ''
     for chapter in book['book_chapters']:
-        pdf.title = chapter.chapter_title
-        pdf.print_chapter(chapter.chapter_number, chapter.chapter_title, chapter.chapter_text)
-        book_text += chapter.chapter_text
+        pdf.title = chapter[0].chapter_title
+
+        if chapter[1] == 'allow':
+            chapter_txt=chapter[0].chapter_text 
+        else:
+            deny ="""\n\nДанная глава закрыта для доступа автором. 
+Глава будет доступна для бесплатного просмотра {}"""
+            deny = deny.format(chapter[0].date_to_open.strftime('%d-%m-%Y'))
+            chapter_txt = chapter[0].short_text + deny
+
+        pdf.print_chapter(chapter[0].chapter_number, chapter[0].chapter_title, chapter_txt)
+        book_text += chapter[0].chapter_text
 
     crc32 = CRC32().calculate(book_text)
     pdf_file_name = '{}_{}_{}.pdf'.format(authors, pdf.book_name.replace(' ', '_'), crc32)

@@ -1,0 +1,16 @@
+
+{% include "header.tmpl" %}
+
+<div class="container-fluid">
+	<div class="media">
+	  <img class="d-flex mr-3 glyph-men" src="/static/img/si-glyph-person-2.svg" alt="book image">
+	  <div class="media-body">
+	 <p>Имя пользователя: {{ user_data.user_name }}</p>
+	 <p>Полное имя: {{ user_data.full_name }}</p>
+	 <p>Email: {{ user_data.email }}</p>
+	 <p>Telegram: {{ user_data.telegram_login }}</p>
+	  </div>
+	</div>
+</div>
+
+{% include "footer.tmpl" %}
