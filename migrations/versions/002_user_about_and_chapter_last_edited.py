@@ -5,7 +5,7 @@ from datetime import datetime
 meta = MetaData()
 
 about = Column('about', String(255))
-last_edited = Column('last_edited', DateTime, default=func.current_timestamp())
+last_edited = Column('last_edited', DateTime, default=datetime.utcnow)
 
 
 def upgrade(migrate_engine):
