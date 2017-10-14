@@ -6,7 +6,7 @@ pip install python-magic
 pip install python-telegram-bot --upgrade
 
 
-pip install sqlalchemy-migration 
+pip install sqlalchemy-migrate 
 ./manage.py version_control 
 ./manage.py upgrade 
 
