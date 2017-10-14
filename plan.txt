@@ -1,4 +1,5 @@
 07.08
+web
 telegram-bot
 get from docx
 save to pdf
@@ -6,9 +7,11 @@ save to fb2/google_doc
 
 14.08
 web
-get from google_doc
-get from doc
-get from rtf/txt/odt
+telegram-bot
+get/save from/to google_doc
 
 21.08
 rates
+get from doc
+get from rtf/txt/odt
+users
