@@ -54,13 +54,11 @@ def make_conv_handler(
         filters_text,
         get_genres,
         add_a_genre,
-        chose_name,
-        add_description,
-        add_chap_name,
+        chooser_func,
         download_file,
         filters_document,
         cancel,
-         ):
+        ):
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler(
             'start',
@@ -130,19 +128,28 @@ def make_conv_handler(
             CHOSE_NAME: [
                  MessageHandler(
                     filters_text,
-                    chose_name,
+                    chooser_func(
+                        'name',
+                        'Вы выбрали имя книги ',
+                        ),
                     pass_user_data=True),
             ],
             ADD_DESCRIPTION: [
                  MessageHandler(
                     filters_text,
-                    add_description,
+                    chooser_func(
+                        'description',
+                        'Вы выбрали описание книги '
+                        ),
                     pass_user_data=True),
             ],
             ADD_CHAPTER_NAME: [
                  MessageHandler(
                     filters_text,
-                    add_chap_name,
+                    chooser_func(
+                        'chapter_name',
+                        'Вы выбрали название главы '
+                        ),
                     pass_user_data=True),
             ],
             UPLOAD_A_TEXT: [

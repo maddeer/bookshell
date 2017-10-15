@@ -10,7 +10,7 @@ import configparser
 
 from modules_bookshell import save_the_book, docx_to_text, get_genre_dict
 from tele_bot.modules import ANSWERS, make_conv_handler
-from model.models import Genre, db_session, Book, GenreBook, Chapter
+from model.models import Genre, db_session, Book, GenreBook, Chapter, User
 
 config = configparser.ConfigParser()
 config.sections()
@@ -37,9 +37,7 @@ def main():
         Filters.text,
         get_genres,
         add_a_genre,
-        chose_name,
-        add_description,
-        add_chap_name,
+        chooser_func,
         download_file,
         Filters.document,
         cancel,
@@ -101,28 +99,22 @@ def add_a_genre(bot, update, user_data):
     return CHOSE_GENRES
 
 
-def chose_name(bot, update, user_data):
-    user_data['name'] = update.message.text
-    return CREATE_A_BOOK
-
-
-def add_description(bot, update, user_data):
-    user_data['description'] = update.message.text
-    return CREATE_A_BOOK
-
-
-def add_chap_name(bot, update, user_data):
-    user_data['chapter_name'] =\
-        update.message.text
-    return CREATE_A_BOOK
+def chooser_func(what, answer_to_user):
+    def choose_inner(bot, update, user_data):
+        user_data[what] = update.message.text
+        update.message.reply_text(answer_to_user + update.message.text)
+        return CREATE_A_BOOK
+    return choose_inner
 
 
 def command_handler(bot, update, user_data):
     global ANSWERS
+    print(update)
     answer = ANSWERS[update.message.text][0]
     if update.message.text == '/save_my_book':
         save_the_book(
             user_data.get('name'),
+            get_ig_by_tlegram_name(update.message.chat.username),
             user_data.get('text_from_file'),
             user_data.get('description'),
             user_data.get('chapter_name'),
@@ -153,6 +145,14 @@ def download_file(bot, update, user_data):
 def cancel(bot, update, user_data):
     user_data.clear()
     return ConversationHandler.END
+
+
+def get_ig_by_tlegram_name(name):
+    user = User.query.filter(User.telegram_login == name)
+    if user is not None:
+        return user.id
+    else:
+        return None
 
 
 if __name__ == "__main__":
