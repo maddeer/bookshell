@@ -2,7 +2,8 @@ from datetime import datetime
 
 import docx
 
-from model.models import Genre, db_session, Book, GenreBook, Chapter, Author
+from model.models import Genre, db_session, Book, GenreBook, Chapter
+from model.models import Author, User
 
 
 def docx_to_text(docx_file):
@@ -43,33 +44,54 @@ def save_the_book(
         for book_genre in genre:
             new_book_genre = GenreBook(new_book.id, genre_dict[book_genre])
             db_session.add(new_book_genre)
-    new_author = Author(user_id, new_book.id)
-    db_session.add(new_author)
-    db_session.commit()
-    add_chapter(
-        new_book.id,
-        chapter_title,
-        time_open,
-        text,
-        1,
-        )
-    return new_book.id
+    if user_id is not None:
+        new_author = Author(user_id, new_book.id)
+        db_session.add(new_author)
+        db_session.commit()
+        add_chapter(
+            new_book.id,
+            user_id,
+            chapter_title,
+            time_open,
+            text,
+            1,
+            )
+        return new_book.id
+    else:
+        return None
 
 
 def add_chapter(
         book_id,
+        user_id,
         chapter_title,
         time_open,
         text,
         chapter_number=None,
         ):
-    new_chapter = Chapter(
-        book_id,
-        chapter_number,
-        chapter_title,
-        time_open,
-        text,
-    )
-    db_session.add(new_chapter)
-    db_session.commit()
-    return new_chapter.id
+    author = Author.query.filter(
+        Author.user_id == user_id
+        ).filter(
+        Author.book_id == book_id
+        ).first()
+    if author is not None:
+        new_chapter = Chapter(
+            book_id,
+            chapter_number,
+            chapter_title,
+            time_open,
+            text,
+        )
+        db_session.add(new_chapter)
+        db_session.commit()
+        return new_chapter.id
+    else:
+        return None
+
+
+def get_ig_by_tlegram_name(name):
+    user = User.query.filter(User.telegram_login == name).first()
+    if user is not None:
+        return user.id
+    else:
+        return None

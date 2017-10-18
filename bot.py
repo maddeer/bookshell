@@ -9,6 +9,7 @@ import magic
 import configparser
 
 from modules_bookshell import save_the_book, docx_to_text, get_genre_dict
+from modules_bookshell import get_ig_by_tlegram_name
 from tele_bot.modules import ANSWERS, make_conv_handler
 from model.models import Genre, db_session, Book, GenreBook, Chapter, User
 
@@ -24,7 +25,7 @@ logging.basicConfig(
 )
 MAIN_MENU, CREATE_A_BOOK, ADD_CHAPTER_NAME, ADD_A_GENRE, CHOSE_NAME,\
     CHOSE_GENRES, SAVE_MY_BOOK, UPLOAD_A_TEXT, ADD_DESCRIPTION,\
-    SAVE_BOOK = range(10)
+    SAVE_BOOK, MAIN_MENU_UN_REGISTRED = range(11)
 
 GENRE = {}
 
@@ -48,15 +49,26 @@ def main():
 
 
 def start(bot, update):
-    anser = '''
-    Добрый день!
-    Вы находитесь в библиотеке.
-    Вы можете добавить новую книгу /add_a_book
-    Отредактирвать старую /change_a_book
-    или выбрать книгу для чтения /chose_a_book
-    '''
+    if get_ig_by_tlegram_name(update.message.chat.username) is not None:
+
+        anser = '''
+        Добрый день!
+        Вы находитесь в библиотеке.
+        Вы можете добавить новую книгу /add_a_book
+        Отредактирвать старую /change_a_book
+        или выбрать книгу для чтения /find_a_book
+        '''
+        mode = MAIN_MENU
+    else:
+        answer = '''
+        Добрый день! Вы не зарегестрированны,
+        вам доступен только просмотр бесплатных книг
+        Для регистрации выберете /registation
+        Для просмотра книг /find_a_book
+        '''
+        mode = MAIN_MENU_UN_REGISTRED
     update.message.reply_text(answer)
-    return MAIN_MENU
+    return mode
 
 
 def get_genres(bot, update, user_data):
@@ -109,7 +121,6 @@ def chooser_func(what, answer_to_user):
 
 def command_handler(bot, update, user_data):
     global ANSWERS
-    print(update)
     answer = ANSWERS[update.message.text][0]
     if update.message.text == '/save_my_book':
         save_the_book(
@@ -145,14 +156,6 @@ def download_file(bot, update, user_data):
 def cancel(bot, update, user_data):
     user_data.clear()
     return ConversationHandler.END
-
-
-def get_ig_by_tlegram_name(name):
-    user = User.query.filter(User.telegram_login == name)
-    if user is not None:
-        return user.id
-    else:
-        return None
 
 
 if __name__ == "__main__":
