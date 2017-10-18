@@ -3,13 +3,42 @@
 
 <div class="container-fluid">
 	<div class="media">
-	  <img class="d-flex mr-3 glyph-men" src="/static/img/si-glyph-person-2.svg" alt="book image">
-	  <div class="media-body">
-	 <p>Имя пользователя: {{ user_data.user_name }}</p>
-	 <p>Полное имя: {{ user_data.full_name }}</p>
-	 <p>Email: {{ user_data.email }}</p>
-	 <p>Telegram: {{ user_data.telegram_login }}</p>
-	  </div>
+        <img class="d-flex mr-3 glyph-men" src="/static/img/si-glyph-person-2.svg" alt="book image">
+        <div class="media-body">
+    {% if not edit %}
+	<p>Имя пользователя: {{ user_data.user_name }}</p>
+	<p>Полное имя: {{ user_data.full_name }}</p>
+	<p>Email: {{ user_data.email }}</p>
+	<p>Telegram: {{ user_data.telegram_login }}</p>
+	<p>О себе: {{ user_data.about }}</p>
+	{% elif edit %}
+	<form method='POST' action='/profile/'>
+	<p>Имя пользователя:
+        <input class="form-control mr-sm-2" type="text" placeholder="{{ user_data.user_name }}" aria-label="{{ user_data.user_name }}" name='user_name'>
+    </p>
+    <p>Пароль:
+       <input class="form-control mr-sm-2" type="password" placeholder="Пароль" aria-label="password" name='password'>
+    </p>
+    <p>Повторите Пароль:
+       <input class="form-control mr-sm-2" type="password" placeholder="Пароль" aria-label="password" name='rep_password'>
+    </p>
+
+	<p>Полное имя:
+        <input class="form-control mr-sm-2" type="text" placeholder="{{ user_data.full_name }}" aria-label="{{ user_data.full_name }}" name='full_name'>
+    </p>
+	<p>Email: 
+        <input class="form-control mr-sm-2" type="text" placeholder="{{ user_data.email }}" aria-label="{{ user_data.email }}" name='email'>
+    </p>
+	<p>Telegram:
+        <input class="form-control mr-sm-2" type="text" placeholder="{{ user_data.telegram_login }}" aria-label="{{ user_data.telegram_login }}" name='telegram_login'>
+    </p>
+	<p>О себе:
+        <input class="form-control mr-sm-2" type="text" placeholder="{{ user_data.about }}" aria-label="{{ user_data.about }}" name='about'>
+    </p>
+    <br><button class="btn btn-outline-success my-2 my-sm-0" type="submit" >Сохранить</button>
+	</form>
+	{% endif %}
+	 </div>
 	</div>
 </div>
 
