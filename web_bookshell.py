@@ -6,7 +6,7 @@ from datetime import datetime
 from flask import Flask, abort, request, render_template, session, make_response
 from flask import redirect, url_for
 
-from model.models import User, Book, Chapter
+from model.models import User, Book, Chapter, make_hash, db_session
 from export.exporttopdf import make_pdf_book
 
 app = Flask(__name__)
@@ -130,8 +130,8 @@ def chapterpdf(chapter_id):
     book_file = make_pdf_book(book_info).replace('static/','')
     return app.send_static_file(book_file)
 
-@app.route('/profile/', defaults={'user_id': None}, methods=['POST'],)
-@app.route('/profile/<int:user_id>', methods=['POST'])
+@app.route('/profile/', defaults={'user_id': None}, methods=['POST','GET'],)
+@app.route('/profile/<int:user_id>', methods=['POST','GET'])
 def profile(user_id=None):
     username = session.get('username')
     session_user_id = session.get('user_id')
@@ -141,7 +141,10 @@ def profile(user_id=None):
         user_id = session_user_id
 
     edit = False
-    print(request.form)
+
+    user = User()
+    user_data = user.query.filter( User.id == user_id ).first()
+
     if session_user_id == user_id:
         edit_raw = request.args.get('edit', 'False')
         if edit_raw.capitalize() == 'True':
@@ -149,16 +152,42 @@ def profile(user_id=None):
 
         owner=True
 
-    user = User()
-    user_data = user.query.filter( User.id == user_id ).first()
+        if request.form:
+            update_profile(user_data=user_data, update_form=request.form)
 
     return render_template(
             'user_profile.tmpl',
             username=username,
             user_data=user_data,
-            owner=True,
+            owner=owner,
             edit=edit
             )
+
+
+def update_profile(user_data=None, update_form=None):
+    if user_data == None and update_form == None:
+        return None 
+
+    if update_form.get('first_name'):
+        user_data.first_name=update_form.get('first_name')
+    
+    if update_form.get('middle_name'):
+        user_data.middle_name=update_form.get('middle_name')
+
+    if update_form.get('last_name'):
+        user_data.last_name=update_form.get('last_name')
+
+    if update_form.get('telegram_login'):
+        user_data.telegram_login=update_form.get('telegram_login')
+
+    if update_form.get('about'):
+        user_data.about=update_form.get('about')
+
+    if update_form.get('email'):
+        user_data.email=update_form.get('email')
+
+    db_session.commit()
+    return 'OK'
 
 
 if __name__ == '__main__':                                                                                                      

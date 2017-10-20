@@ -6,6 +6,12 @@
         <img class="d-flex mr-3 glyph-men" src="/static/img/si-glyph-person-2.svg" alt="book image">
         <div class="media-body">
     {% if not edit %}
+		{% if owner %}
+		<p>
+		<button style="margin-top: 5px;" type="button" class="btn btn-dark"
+			onclick="window.location.href = '/profile/?edit=true'">Отредактировать Профиль</button>
+		</p>
+		{% endif %}
 	<p>Имя пользователя: {{ user_data.user_name }}</p>
 	<p>Полное имя: {{ user_data.full_name }}</p>
 	<p>Email: {{ user_data.email }}</p>
@@ -23,8 +29,14 @@
        <input class="form-control mr-sm-2" type="password" placeholder="Пароль" aria-label="password" name='rep_password'>
     </p>
 
-	<p>Полное имя:
-        <input class="form-control mr-sm-2" type="text" placeholder="{{ user_data.full_name }}" aria-label="{{ user_data.full_name }}" name='full_name'>
+	<p>Имя:
+        <input class="form-control mr-sm-2" type="text" placeholder="{{ user_data.first_name }}" aria-label="{{ user_data.first_name }}" name='first_name'>
+    </p>
+	<p>Отчество:
+        <input class="form-control mr-sm-2" type="text" placeholder="{{ user_data.middle_name }}" aria-label="{{ user_data.middle_name }}" name='middle_name'>
+    </p>
+	<p>Фамилия:
+        <input class="form-control mr-sm-2" type="text" placeholder="{{ user_data.last_name }}" aria-label="{{ user_data.last_name }}" name='last_name'>
     </p>
 	<p>Email: 
         <input class="form-control mr-sm-2" type="text" placeholder="{{ user_data.email }}" aria-label="{{ user_data.email }}" name='email'>
