@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:l="http://www.w3.org/1999/xlink">
+
+<description>
+  <title-info>
+	{% for ganre in book['book_data'].genre %}
+		<genre>{{ genre.genre.genre_name_type }}</genre>
+	{% endfor %}
+
+	{% for author in book['book_authors'] %}
+	 <author>
+		<first-name>{{ author.first_name }}</first-name>
+		<middle-name>{{ author.middle_name }}</middle-name>
+		<last-name>{{ author.last_name }}</last-name>
+    </author>
+	{% endfor %}
+    <book-title>{{ book['book_data'].book_name }}</book-title>
+    <annotation>
+      <p>{{ book['book_data'].book_description }}</p>
+    </annotation>
+    <date value="{{ book['book_chapters'][-1][0].last_edited.strftime('%Y-%m-%d') }}">{{ book['book_chapters'][-1][0].last_edited.strftime('%Y') }}</date>
+    <coverpage>
+      <image l:href="#cover.jpg"/>
+    </coverpage>
+    <lang>ru</lang>
+    <sequence name="" number=""/>
+    <sequence name="" number=""/>
+  </title-info>
+  <document-info>
+    <author>
+      <nickname>{{ username }}</nickname>
+    </author>
+    <program-used>BookShell python fb2 genterator</program-used>
+    <date value="{{ datatime.utcnow().strftime('%Y-%m-%d') }}">{{ datatime.utcnow().strftime('%Y-%m-%d %H:%M:S') }}</date>
+    <src-url>http://bookshell.maddeer.ru/book/{{ book['book_data'].id }}</src-url>
+    <src-ocr>Текст предоставлен правообладателем</src-ocr>
+    <id>{{ bookcrc }}</id>
+  </document-info>
+</description>
+
+<body>
+  <title>
+	<empty-line/>
+	<empty-line/>
+	{% for author in book['book_authors'] %}
+		<p>{{ author.full_name }}</p>
+	{% endfor %}
+	<empty-line/>
+	<empty-line/>
+   <p>{{ book['book_data'].book_name }}</p>
+	<empty-line/>
+  </title>
+
+{% for chapter in book['book_chapters'] %} 
+  <section>
+   <title>
+    <p>Глава {{ chapter.chapter_number }}</p>
+	<empty-line/>
+    <p>{{ chapter.chapter_title }}</p>
+	<empty-line/>
+   </title>
+	<empty-line/>
+	<empty-line/>
+{% if book['book_chapters'][0][1] == 'allow' %}
+	{{ book['book_chapters'][0][0].chapter_text_br }}
+{% elif book['book_chapters'][0][1] == 'deny' %}
+	<p>{{ book['book_chapters'][0][0].short_text }}</p>
+	<empty-line/> 
+	<empty-line/>
+	<p>Данная глава закрыта для доступа автором.</p>
+	<p>Глава будет доступна для бесплатного просмотра {{ book['book_chapters'][0][0].date_to_open.strftime('%d-%m-%Y') }}</p>
+{% endif %}
+
+  </section>
+{% endfor %}
+ </body>
+
+ <binary id="cover.jpg" content-type="image/jpeg"></binary>
+
+</FictionBook>
