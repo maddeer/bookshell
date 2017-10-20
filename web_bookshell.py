@@ -105,6 +105,10 @@ def bookpdf(book_id):
         user_id = 0
 
     book_info = book.get_book_info(book_id=book_id, user_id=user_id)
+
+    if not book_info:
+        abort(404)
+
     book_file = make_pdf_book(book_info).replace('static/','')
     return app.send_static_file(book_file)
 
@@ -119,14 +123,15 @@ def chapterpdf(chapter_id):
         user_id = 0
 
     book_info = chapter.get_chapter_info(chapter_id=chapter_id, user_id=user_id)
+
     if not book_info:
         abort(404)
 
     book_file = make_pdf_book(book_info).replace('static/','')
     return app.send_static_file(book_file)
 
-@app.route('/profile/', defaults={'user_id': None})
-@app.route('/profile/<int:user_id>')
+@app.route('/profile/', defaults={'user_id': None}, methods=['POST'],)
+@app.route('/profile/<int:user_id>', methods=['POST'])
 def profile(user_id=None):
     username = session.get('username')
     session_user_id = session.get('user_id')
@@ -135,13 +140,25 @@ def profile(user_id=None):
     if not user_id:
         user_id = session_user_id
 
+    edit = False
+    print(request.form)
     if session_user_id == user_id:
+        edit_raw = request.args.get('edit', 'False')
+        if edit_raw.capitalize() == 'True':
+            edit = True
+
         owner=True
 
     user = User()
     user_data = user.query.filter( User.id == user_id ).first()
 
-    return render_template('user_profile.tmpl', username=username, user_data=user_data, owner=True)
+    return render_template(
+            'user_profile.tmpl',
+            username=username,
+            user_data=user_data,
+            owner=True,
+            edit=edit
+            )
 
 
 if __name__ == '__main__':                                                                                                      

@@ -8,3 +8,5 @@ __pycache__
 *.file
 *.conf
 *.log
+*.json
+my_test.py

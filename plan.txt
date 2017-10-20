@@ -1,14 +1,25 @@
 07.08
+web
 telegram-bot
 get from docx
 save to pdf
-save to fb2/google_doc
 
 14.08
 web
-get from google_doc
 get from doc
-get from rtf/txt/odt
 
-21.08
-rates
+21.10
+profile 
+registration
+добавление книги в web interface
+
+добавление главы
+save to fb2/google_doc
+к главе: поле удалённая 
+
+28.10
+rates 
+get from rtf/txt/odt
+картинки для книги и аватар пользоателя
+get from google_doc
+

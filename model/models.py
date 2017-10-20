@@ -53,6 +53,7 @@ class User(Base):
     full_name = Column(String(50), index=True)
     telegram_login = Column(String(50), index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
+    about = Column(String(255))
     role_id = Column(Integer, ForeignKey('user_role.id'))
 
     def __init__(
@@ -63,6 +64,7 @@ class User(Base):
                 telegram_login=None,
                 email=None,
                 role=None,
+                about=None,
                 ):
 
         self.user_name = user_name
@@ -70,6 +72,7 @@ class User(Base):
         self.full_name = full_name
         self.telegram_login = telegram_login
         self.email = email
+        self.about = about
         self.role = role
 
     def __repr__(self):
@@ -236,7 +239,8 @@ class Chapter(Base):
     book_id = Column(Integer, ForeignKey('book.id'), nullable=False)
     chapter_number = Column(Integer, nullable=False)
     chapter_title = Column(String(255))
-    date_to_open = Column(DateTime)
+    date_to_open = Column(DateTime, default=datetime.utcnow)
+    last_edited = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     chapter_text = Column(Text)
     alowed_user = relationship('Grant', backref='alowed')
 

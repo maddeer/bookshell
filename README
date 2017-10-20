@@ -6,7 +6,7 @@ pip install python-magic
 pip install python-telegram-bot --upgrade
 
 
-pip install sqlalchemy-migration 
-python migrations/manage.py version_control --url=sqlite:///model/bookshell.db migrations
-python migrations/manage.py upgrade --url=sqlite:///model/bookshell.db migrations
+pip install sqlalchemy-migrate 
+./manage.py version_control 
+./manage.py upgrade 
 
