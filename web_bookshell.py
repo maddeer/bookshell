@@ -6,6 +6,8 @@ from datetime import datetime
 from flask import Flask, abort, request, render_template, session, make_response
 from flask import redirect, url_for
 
+import configparser
+
 from model.models import User, Book, Chapter, make_hash, db_session
 from export.exporttopdf import make_pdf_book
 
@@ -191,6 +193,9 @@ def update_profile(user_data=None, update_form=None):
 
 
 if __name__ == '__main__':                                                                                                      
-    app.secret_key = b'o7E\xd7\xf8q\xdc#\xfe\xae\x11\xba\x91n.\x86\xe8.q<@I?\xc2'
+    config = configparser.ConfigParser()
+    config.sections()
+    config.read('conf/bookshell.conf')
+    app.secret_key = config['DEFAULT']['WEB_SESSION_KEY']
     app.run(port=5000, debug=True)
 
