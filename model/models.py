@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 
 import os
+import re
+
 from hashlib import sha384
 from binascii import hexlify
 
 from datetime import datetime
 
 from sqlalchemy import create_engine, or_, literal_column
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Index
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -41,7 +43,7 @@ class Role(Base):
         self.role_name = role_name
 
     def __repr__(self):
-        return('Role {} {}>'.format(self.id, self.role_name))
+        return('<Role {} {}>'.format(self.id, self.role_name))
 
 
 class User(Base):
@@ -50,17 +52,29 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     user_name = Column(String(25), unique=True, index=True, nullable=False)
     password = Column(String(255), nullable=False)
-    full_name = Column(String(50), index=True)
+    first_name = Column(String(50), index=True)
+    middle_name = Column(String(50), index=True)
+    last_name = Column(String(50), index=True)
     telegram_login = Column(String(50), index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
     about = Column(String(255))
     role_id = Column(Integer, ForeignKey('user_role.id'))
 
+    __table_args__ = (
+            Index(
+            'ix_user_fullname',
+            first_name,
+            middle_name,
+            last_name,
+            ),)
+
     def __init__(
                 self,
                 user_name=None,
                 password=None,
-                full_name=None,
+                first_name=None,
+                middle_name=None,
+                last_name=None,
                 telegram_login=None,
                 email=None,
                 role=None,
@@ -69,7 +83,9 @@ class User(Base):
 
         self.user_name = user_name
         self.password = password
-        self.full_name = full_name
+        self.first_name = first_name
+        self.middle_name = middle_name
+        self.last_name = last_name
         self.telegram_login = telegram_login
         self.email = email
         self.about = about
@@ -89,17 +105,34 @@ class User(Base):
         else:
             return False
 
+    @property
+    def full_name(self):
+        if not self.first_name:
+            self.first_name = '' 
+        if not self.middle_name:
+            self.middle_name = '' 
+        if not self.last_name:
+            self.last_name = '' 
+
+        return ' '.join([
+                        self.first_name,
+                        self.middle_name,
+                        self.last_name
+                        ]).strip().replace('  ',' ')
+
 
 class Genre(Base):
     __tablename__ = 'genre'
 
     id = Column(Integer, primary_key=True)
     genre_name = Column(String(25), nullable=False)
+    genre_name_type = Column(String(25), nullable=False)
     genre = relationship('GenreBook', backref='genre')
 
 
-    def __init__(self, genre_name=None):
+    def __init__(self, genre_name=None, genre_name_rus=None):
         self.genre_name = genre_name
+        self.genre_name_type = genre_name_type
 
     def __repr__(self):
         return('<Genre {} {}>'.format(self.id, self.genre_name))
@@ -111,10 +144,9 @@ class Book(Base):
     id = Column(Integer, primary_key=True)
     book_name = Column(String(255), nullable=False)
     book_description = Column(Text)
-    book = relationship('GenreBook', backref='book')
-    chapters = relationship('Chapter', backref='chapter')
-    authors = relationship('Author', backref='authors')
-
+    genre = relationship('GenreBook', backref='book')
+    chapters = relationship('Chapter', backref='book')
+    authors = relationship('Author', backref='books_author')
 
     def __init__(self, book_name=None, book_description=None):
         self.book_name = book_name
@@ -222,7 +254,7 @@ class Author(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'))
     book_id = Column(Integer, ForeignKey('book.id'))
-    user = relationship('User', uselist=False, backref='user')
+    user = relationship('User', uselist=False, lazy='joined', backref='books_author')
 
     def __init__(self, user_id=None, book_id=None):
         self.user_id = user_id
@@ -343,7 +375,7 @@ class Chapter(Base):
 
     @property
     def chapter_text_br(self):
-        return self.chapter_text.replace('\n','\n<br>')
+        return re.sub(r"(.*)", r"<p>\1</p>", self.chapter_text)
 
 
 class Grant(Base):
