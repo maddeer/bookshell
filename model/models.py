@@ -130,7 +130,7 @@ class Genre(Base):
     genre = relationship('GenreBook', backref='genre')
 
 
-    def __init__(self, genre_name=None, genre_name_rus=None):
+    def __init__(self, genre_name=None, genre_name_type=None):
         self.genre_name = genre_name
         self.genre_name_type = genre_name_type
 
