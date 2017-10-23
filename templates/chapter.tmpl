@@ -10,7 +10,7 @@
 	 {% for author in book['book_authors'] %}
 		<h6>{{ author.full_name }}</h6>
 	 {% endfor %}
-		{% if book['book_chapters'][1][1] == 'allow' %}
+		{% if book['book_chapters'][0][1] == 'allow' %}
 
 			{{ book['book_chapters'][0][0].chapter_text_br }}
 
