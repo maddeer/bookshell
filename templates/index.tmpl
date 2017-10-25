@@ -9,7 +9,7 @@
 		<h5 class="mt-0"><a  href='/book/{{ item.id }}'>{{ item.book_name }}</a>
 		<span class="badge badge-secondary">New</span></h5>
 	 {% for author in item.authors %}
-		<h6>{{ author.user.full_name }}</h6>
+		<h6><a href='/profile/{{ author.user.id }}'>{{ author.user.full_name }}</a></h6>
 	 {% endfor %}
 		{{ item.book_description }}
 	  </div>

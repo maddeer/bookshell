@@ -26,6 +26,7 @@
 </div>
 <div class="container">
 {% for item in book['book_chapters'] %}
+	{% if not item[0].deleted or item[0].deleted < 1 or owner %}
 	<div class="media">
 	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
 	  <div class="media-body">
@@ -37,8 +38,7 @@
 		<a href='/chapter/{{ item[0].id }}'>{{ item[0].short_text }}</a>
 		<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
 		  <div class="btn-group mr-2" role="group" aria-label="First group">
-			<button type="button" class="btn btn-secondary" onclick="
-			window.location.href = '/chapterpdf/{{ item[0].id }}';">pdf</button>
+			<a type="button" class="btn btn-secondary" href='/chapterpdf/{{ item[0].id }}'>pdf</a>
 			<button type="button" class="btn btn-secondary" onclick="">fb2</button>
 			<button type="button" class="btn btn-secondary" onclick="">ebub</button>
 			<button type="button" class="btn btn-secondary" onclick="">mobi</button>
@@ -46,6 +46,7 @@
 		</div>
 	  </div>
 	</div>
+	{% endif %}
 {% endfor %}
 </div>
 {% include "footer.tmpl" %}

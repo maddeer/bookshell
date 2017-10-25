@@ -1,17 +1,30 @@
 #!/usr/bin/env python3
 
 import re
+import os
 from datetime import datetime
 
 from flask import Flask, abort, request, render_template, session, make_response
-from flask import redirect, url_for
+from flask import redirect, url_for, flash
+from werkzeug.utils import secure_filename
 
 import configparser
 
-from model.models import User, Book, Chapter, make_hash, db_session
+from model.models import User, Book, Chapter, Genre, make_hash, db_session
 from export.exporttopdf import make_pdf_book
+from modules_bookshell import docx_to_text, save_the_book, add_chapter
+
+UPLOAD_FOLDER = 'books/'
+ALLOWED_EXTENSIONS = set(['txt', 'docx'])
 
 app = Flask(__name__)
+config = configparser.ConfigParser()
+config.sections()
+config.read('conf/bookshell.conf')
+app.secret_key = config['DEFAULT']['WEB_SESSION_KEY']
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
 
 @app.route('/')
 def index():
@@ -192,10 +205,110 @@ def update_profile(user_data=None, update_form=None):
     return 'OK'
 
 
+@app.route('/addbook', methods=['POST', 'GET'])
+def addbook():
+    username = session.get('username')
+    user_id = session.get('user_id')
+    
+    if not username: 
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        if 'chapter' not in request.files:
+            flash('Вы не вложили файл с первой частью')
+            return redirect(url_for('addbook'))
+        chapter_file = request.files['chapter']
+        if chapter_file.filename == '':
+            flash('Вы не вложили файл с первой частью')
+            return redirect(url_for('addbook'))
+
+        if not request.form.get('book_name', None):
+            flash('Нет названия книги')
+            return redirect(url_for('addbook'))
+
+        if not request.form.getlist('genres', None):
+            flash('Вы не указали ни одного жанра') 
+            return redirect(url_for('addbook'))
+
+        if chapter_file and allowed_file(chapter_file.filename):
+            filename = secure_filename(chapter_file.filename)
+            save_book = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            chapter_file.save(save_book)
+            book_text = docx_to_text(save_book)
+            time_to_open = request.form.get('date')
+            book_id = save_the_book(
+                        book_name=request.form.get('book_name'),
+                        text=book_text,
+                        user_id=user_id,
+                        description=request.form.get('description', None),
+                        chapter_title=request.form.get('chapter_title', None),
+                        genre=request.form.getlist('genres'),
+                        time_open=datetime.strptime(time_to_open, '%d/%m/%Y'),
+                    )
+            return redirect(url_for('book', book_id=book_id))
+
+    genre = Genre()
+    genre_list = genre.get_all()
+    return render_template('add_book.tmpl', username=username, genre_list=genre_list)
+
+
+@app.route('/addchapter/<int:book_id>', methods=['POST', 'GET'])
+def add_chapter_web(book_id):
+    username = session.get('username')
+    user_id = session.get('user_id')
+    book = Book()
+    
+    if not username: 
+        return redirect(url_for('index'))
+
+    book_info = book.get_book_info(book_id=book_id, user_id=user_id)
+    owner = False
+
+    if not book_info:
+        abort(404)
+
+    for author in book_info['book_authors']:
+        if author.id == user_id: 
+            owner = True
+
+    if not owner:
+        abort(403)
+
+    if request.method == 'POST':
+        if 'chapter' not in request.files:
+            flash('Вы не вложили файл с новой частью')
+            return redirect(url_for('add_chapter_web', book_id=book_id))
+        chapter_file = request.files['chapter']
+        if chapter_file.filename == '':
+            flash('Вы не вложили файл с новой частью книги')
+            return redirect(url_for('add_chapter_web', book_id=book_id))
+
+        if chapter_file and allowed_file(chapter_file.filename):
+            filename = secure_filename(chapter_file.filename)
+            save_book = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            chapter_file.save(save_book)
+            book_text = docx_to_text(save_book)
+            time_to_open = request.form.get('date')
+            chapter_id = add_chapter(
+                                book_id=book_id,
+                                user_id=user_id,
+                                chapter_title=request.form.get('chapter_title'),
+                                time_open=datetime.strptime(request.form.get('date'), '%d/%m/%Y'),
+                                text=book_text,
+                                chapter_number=request.form.get('chapter_number', None),
+                            )
+            return redirect(url_for('chapter', chapter_id=chapter_id))
+
+    next_chapter = book_info['book_chapters'][-1][0].chapter_number + 1
+
+    return render_template('add_chapter.tmpl', username=username, book=book_info, next_chapter=next_chapter)
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+       filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 if __name__ == '__main__':                                                                                                      
-    config = configparser.ConfigParser()
-    config.sections()
-    config.read('conf/bookshell.conf')
-    app.secret_key = config['DEFAULT']['WEB_SESSION_KEY']
     app.run(port=5000, debug=True)
 
