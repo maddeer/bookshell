@@ -221,6 +221,8 @@ class Book(Base):
                 literal_column("'deny'").label('access')
             ).filter(
                 ~Chapter.id.in_(not_in)
+            ).filter(
+                Chapter.book_id == book_id,
             )
 
             book_chapters = allowed.union(
