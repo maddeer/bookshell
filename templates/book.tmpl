@@ -1,12 +1,16 @@
 {% include "header.tmpl" %}
 
 <div class="container">
-<h1>{{ book['book_data'].book_name }}</h1>
+<h1>{{ book['book_data'].book_name }}
+{% if owner %}
+<a type="button" class="btn btn-secondary" href='/addchapter/{{ book['book_data'].id }}'>Добавить главу</a>
+{% endif %}
+</h1>
 	<div class="media">
 	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
 	  <div class="media-body">
 	 {% for author in book['book_authors'] %}
-		<h6>{{ author.full_name }}</h6>
+		<h6><a href='/profile/{{ author.id }}'>{{ author.full_name }}</a></h6>
 	 {% endfor %}
 			{{ book['book_data'].book_description }}
 		<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">

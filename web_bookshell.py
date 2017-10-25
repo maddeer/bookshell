@@ -73,6 +73,7 @@ def book(book_id):
     date = datetime.utcnow()
     username = session.get('username')
     user_id = session.get('user_id')
+    owner = False
 
     if not user_id:
         user_id = 0
@@ -81,10 +82,15 @@ def book(book_id):
     if not book_info.get('book_data'):
         abort(404)
 
+    for author in book_info['book_authors']:
+        if author.id == user_id: 
+            owner = True
+
     return render_template(
                 'book.tmpl',
                 username=username,
                 book=book_info,
+                owner=owner,
             )
 
 
