@@ -123,6 +123,13 @@ def command_handler(bot, update, user_data):
     global ANSWERS
     answer = ANSWERS[update.message.text][0]
     if update.message.text == '/save_my_book':
+        genre_dict = get_genre_dict()
+        genres = []
+        for genre in user_data.get('genre'):
+            genres.append(genre_dict[genre])
+
+        user_data['genre'] = genres
+            
         save_the_book(
             user_data.get('name'),
             get_ig_by_tlegram_name(update.message.chat.username),
