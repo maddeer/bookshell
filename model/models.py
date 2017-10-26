@@ -108,11 +108,11 @@ class User(Base):
     @property
     def full_name(self):
         if not self.first_name:
-            self.first_name = '' 
+            self.first_name = ''
         if not self.middle_name:
-            self.middle_name = '' 
+            self.middle_name = ''
         if not self.last_name:
-            self.last_name = '' 
+            self.last_name = ''
 
         return ' '.join([
                         self.first_name,
@@ -185,6 +185,8 @@ class Book(Base):
                 literal_column("'allow'").label('access')
             ).filter(
                 Chapter.book_id == book_id,
+            ).filter(
+                or_( Chapter.deleted < 2, Chapter.deleted == None )
             ).order_by(
                 Chapter.chapter_number,
             ).all()
@@ -202,6 +204,8 @@ class Book(Base):
                     )
             ).filter(
                 Chapter.book_id == book_id,
+            ).filter(
+                or_(Chapter.deleted < 1, Chapter.deleted == None )
             )
 
             not_in = db_session.query(
@@ -281,7 +285,7 @@ class Chapter(Base):
     last_edited = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     deleted = Column(SmallInteger)
     chapter_text = Column(Text)
-    
+
     alowed_user = relationship('Grant', backref='alowed')
 
     def __init__(
@@ -328,6 +332,8 @@ class Chapter(Base):
                 literal_column("'allow'").label('access')
             ).filter(
                 Chapter.id == chapter_id,
+            ).filter(
+                or_( Chapter.deleted < 2, Chapter.deleted == None )
             ).all()
 
         else:
@@ -343,6 +349,8 @@ class Chapter(Base):
                     )
             ).filter(
                 Chapter.id == chapter_id,
+            ).filter(
+                or_(Chapter.deleted < 1, Chapter.deleted == None )
             )
 
             not_in = db_session.query(
