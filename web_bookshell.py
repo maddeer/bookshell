@@ -2,10 +2,12 @@
 
 import re
 import os
+from io import BytesIO
 from datetime import datetime
+from functools import wraps
 
 from flask import Flask, abort, request, render_template, session, make_response
-from flask import redirect, url_for, flash
+from flask import redirect, url_for, flash, send_file
 from werkzeug.utils import secure_filename
 
 import configparser
@@ -83,7 +85,7 @@ def book(book_id):
         abort(404)
 
     for author in book_info['book_authors']:
-        if author.id == user_id: 
+        if author.id == user_id:
             owner = True
 
     return render_template(
@@ -106,7 +108,7 @@ def chapter(chapter_id):
 
     chapter_info = chapter.get_chapter_info(chapter_id, user_id, date)
 
-    if not chapter_info:
+    if not chapter_info or not chapter_info['book_chapters']:
         abort(404)
 
     return render_template(
@@ -116,40 +118,44 @@ def chapter(chapter_id):
             )
 
 
-@app.route('/bookpdf/<int:book_id>')
-def bookpdf(book_id):
+def export_book(get_book_info):
+    @wraps(get_book_info)
+    def make_my_book(id, user_id=0):
+        username = session.get('username')
+        user_id = session.get('user_id')
+
+        if not user_id:
+            user_id = 0
+
+        book_info = get_book_info(id=id, user_id=user_id)
+
+        if not book_info:
+            abort(404)
+
+        book_file = make_pdf_book(book_info)
+
+        return send_file(
+                        BytesIO(book_file['pdf_file']), 
+                        as_attachment=True,
+                        attachment_filename=book_file['pdf_file_name'],
+                        mimetype=book_file['mimetype'],
+                        )
+    return make_my_book
+
+
+@app.route('/bookpdf/<int:id>')
+@export_book
+def bookpdf(id, user_id=0):
     book = Book()
-    username = session.get('username')
-    user_id = session.get('user_id')
-
-    if not user_id:
-        user_id = 0
-
-    book_info = book.get_book_info(book_id=book_id, user_id=user_id)
-
-    if not book_info:
-        abort(404)
-
-    book_file = make_pdf_book(book_info).replace('static/','')
-    return app.send_static_file(book_file)
+    return book.get_book_info(book_id=id, user_id=user_id)
 
 
-@app.route('/chapterpdf/<int:chapter_id>')
-def chapterpdf(chapter_id):
+@app.route('/chapterpdf/<int:id>')
+@export_book
+def chapterpdf(id, user_id=0):
     chapter = Chapter()
-    username = session.get('username')
-    user_id = session.get('user_id')
+    return chapter.get_chapter_info(chapter_id=id, user_id=user_id)
 
-    if not user_id:
-        user_id = 0
-
-    book_info = chapter.get_chapter_info(chapter_id=chapter_id, user_id=user_id)
-
-    if not book_info:
-        abort(404)
-
-    book_file = make_pdf_book(book_info).replace('static/','')
-    return app.send_static_file(book_file)
 
 @app.route('/profile/', defaults={'user_id': None}, methods=['POST','GET'],)
 @app.route('/profile/<int:user_id>', methods=['POST','GET'])
@@ -187,11 +193,11 @@ def profile(user_id=None):
 
 def update_profile(user_data=None, update_form=None):
     if user_data == None and update_form == None:
-        return None 
+        return None
 
     if update_form.get('first_name'):
         user_data.first_name=update_form.get('first_name')
-    
+
     if update_form.get('middle_name'):
         user_data.middle_name=update_form.get('middle_name')
 
@@ -215,8 +221,8 @@ def update_profile(user_data=None, update_form=None):
 def addbook():
     username = session.get('username')
     user_id = session.get('user_id')
-    
-    if not username: 
+
+    if not username:
         return redirect(url_for('index'))
 
     if request.method == 'POST':
@@ -233,7 +239,7 @@ def addbook():
             return redirect(url_for('addbook'))
 
         if not request.form.getlist('genres', None):
-            flash('Вы не указали ни одного жанра') 
+            flash('Вы не указали ни одного жанра')
             return redirect(url_for('addbook'))
 
         if chapter_file and allowed_file(chapter_file.filename):
@@ -263,8 +269,8 @@ def add_chapter_web(book_id):
     username = session.get('username')
     user_id = session.get('user_id')
     book = Book()
-    
-    if not username: 
+
+    if not username:
         return redirect(url_for('index'))
 
     book_info = book.get_book_info(book_id=book_id, user_id=user_id)
@@ -274,7 +280,7 @@ def add_chapter_web(book_id):
         abort(404)
 
     for author in book_info['book_authors']:
-        if author.id == user_id: 
+        if author.id == user_id:
             owner = True
 
     if not owner:
@@ -315,6 +321,6 @@ def allowed_file(filename):
        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-if __name__ == '__main__':                                                                                                      
+if __name__ == '__main__':
     app.run(port=5000, debug=True)
 
