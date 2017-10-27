@@ -66,8 +66,8 @@ def make_pdf_book(book):
         pdf_file.write(pdf.output(dest='S').encode('latin-1'))
 
         book_file = { 
-                   'pdf_file_name': pdf_file_name,
-                   'pdf_file': pdf_file.getvalue(),
+                   'file_name': pdf_file_name,
+                   'file': pdf_file.getvalue(),
                    'mimetype': 'application/pdf',
                    }
         return book_file 
@@ -79,9 +79,9 @@ if __name__ == '__main__':
     book_info = book.get_book_info(book_id=1, user_id=2, date_now=date)
     book_file = make_pdf_book(book_info)
 
-    with open(book_file['pdf_file_name'], "w") as f:
-        f.write(book_file['pdf_file'])
+    with open(book_file['file_name'], "w") as f:
+        f.write(book_file['file'])
 
-    print(book_file['pdf_file_name'])
+    print(book_file['file_name'])
     
 

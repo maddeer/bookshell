@@ -7,23 +7,23 @@
 	<div class="media">
 	  <div class="media-body">
 		<h4 class="mt-0">{{ book['book_chapters'][0][0].chapter_title }}</h4>
-	 {% for author in book['book_authors'] %}
+	{% for author in book['book_authors'] %}
 		<h6><a href='/profile/{{ author.id }}'>{{ author.full_name }}</a></h6>
-	 {% endfor %}
-		{% if book['book_chapters'][0][1] == 'allow' %}
+	{% endfor %}
+	{% if book['book_chapters'][0][1] == 'allow' %}
 
-			{{ book['book_chapters'][0][0].chapter_text_br }}
+		{{ book['book_chapters'][0][0].chapter_text_br }}
 
-		{% elif book['book_chapters'][0][1] == 'deny' %}
+	{% elif book['book_chapters'][0][1] == 'deny' %}
 
-			{{ book['book_chapters'][0][0].short_text }}
+		{{ book['book_chapters'][0][0].short_text }}
 
 	<div class="alert alert-warning" role="alert"> 
 		Данная глава закрыта для доступа автором. 
 		<br>Глава будет доступна для бесплатного просмотра {{ book['book_chapters'][0][0].date_to_open.strftime('%d-%m-%Y') }}
 	</div>                                                     
 
-		{% endif %}
+	{% endif %}
 
 	  </div>
 	</div>

@@ -4,7 +4,7 @@ import os.path
 import sys
 sys.path.insert(0, '../')
 
-from zipfile import ZipFile
+from zipfile import ZipFile, ZIP_DEFLATED
 from io import BytesIO, StringIO
 from datetime import datetime, timedelta
 
@@ -20,7 +20,7 @@ def make_fb2_book(book):
     fb2zip = BytesIO()
     fb2text = StringIO()
 
-    with open('../templates/fb2.tmpl', 'r', encoding='utf-8') as template_file: 
+    with open('templates/fb2.tmpl', 'r', encoding='utf-8') as template_file: 
         template = Template(template_file.read())
 
     fb2text.write(template.render(book=book,date=datetime.utcnow()))
@@ -37,9 +37,8 @@ def make_fb2_book(book):
                             )
     file_name = transliterate(file_name)
 
-    with ZipFile(fb2zip, 'w') as myzip: 
+    with ZipFile(fb2zip, 'w', ZIP_DEFLATED) as myzip: 
         myzip.writestr(file_name, fb2text.getvalue()) 
-    
 
     book_file = { 
                'file_name': file_name+'.zip',

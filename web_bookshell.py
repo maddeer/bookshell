@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import re
 import os
 from io import BytesIO
 from datetime import datetime
@@ -10,17 +9,18 @@ from flask import Flask, abort, request, render_template, session, make_response
 from flask import redirect, url_for, flash, send_file
 from werkzeug.utils import secure_filename
 
-import configparser
+from configparser import ConfigParser
 
 from model.models import User, Book, Chapter, Genre, make_hash, db_session
 from export.exporttopdf import make_pdf_book
 from modules_bookshell import docx_to_text, save_the_book, add_chapter
+from export.exporttofb2 import make_fb2_book
 
 UPLOAD_FOLDER = 'books/'
 ALLOWED_EXTENSIONS = set(['txt', 'docx'])
 
 app = Flask(__name__)
-config = configparser.ConfigParser()
+config = ConfigParser()
 config.sections()
 config.read('conf/bookshell.conf')
 app.secret_key = config['DEFAULT']['WEB_SESSION_KEY']
@@ -72,7 +72,6 @@ def logout():
 @app.route('/book/<int:book_id>')
 def book(book_id):
     book = Book()
-    date = datetime.utcnow()
     username = session.get('username')
     user_id = session.get('user_id')
     owner = False
@@ -80,7 +79,7 @@ def book(book_id):
     if not user_id:
         user_id = 0
 
-    book_info = book.get_book_info(book_id=book_id, user_id=user_id, date_now=date)
+    book_info = book.get_book_info(book_id=book_id, user_id=user_id)
     if not book_info.get('book_data'):
         abort(404)
 
@@ -123,6 +122,12 @@ def export_book(get_book_info):
     def make_my_book(id, user_id=0):
         username = session.get('username')
         user_id = session.get('user_id')
+        avaliable_formats = ['pdf', 'fb2',]
+        
+        if request.args.get('format', 'pdf') in avaliable_formats:
+            book_format = request.args.get('format', 'pdf') 
+        else :
+            book_format = 'pdf'
 
         if not user_id:
             user_id = 0
@@ -132,25 +137,30 @@ def export_book(get_book_info):
         if not book_info:
             abort(404)
 
-        book_file = make_pdf_book(book_info)
+        if book_format == 'pdf': 
+            book_file = make_pdf_book(book_info)
+        elif book_format == 'fb2': 
+            book_file = make_fb2_book(book_info)
+
+        print(book_file['file_name'])
 
         return send_file(
-                        BytesIO(book_file['pdf_file']), 
+                        BytesIO(book_file['file']), 
                         as_attachment=True,
-                        attachment_filename=book_file['pdf_file_name'],
+                        attachment_filename=book_file['file_name'],
                         mimetype=book_file['mimetype'],
                         )
     return make_my_book
 
 
-@app.route('/bookpdf/<int:id>')
+@app.route('/exportbook/<int:id>', methods=['GET'])
 @export_book
 def bookpdf(id, user_id=0):
     book = Book()
     return book.get_book_info(book_id=id, user_id=user_id)
 
 
-@app.route('/chapterpdf/<int:id>')
+@app.route('/exportchapter/<int:id>', methods=['GET'])
 @export_book
 def chapterpdf(id, user_id=0):
     chapter = Chapter()
