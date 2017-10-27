@@ -4,7 +4,7 @@
 
 <description>
   <title-info>
-	{% for ganre in book['book_data'].genre %}
+	{% for genre in book['book_data'].genre %}
 		<genre>{{ genre.genre.genre_name_type }}</genre>
 	{% endfor %}
 
@@ -32,7 +32,7 @@
       <nickname>{{ username }}</nickname>
     </author>
     <program-used>BookShell python fb2 genterator</program-used>
-    <date value="{{ datatime.utcnow().strftime('%Y-%m-%d') }}">{{ datatime.utcnow().strftime('%Y-%m-%d %H:%M:S') }}</date>
+    <date value="{{ date.strftime('%Y-%m-%d') }}">{{ date.strftime('%Y-%m-%d %H:%M:S') }}</date>
     <src-url>http://bookshell.maddeer.ru/book/{{ book['book_data'].id }}</src-url>
     <src-ocr>Текст предоставлен правообладателем</src-ocr>
     <id>{{ bookcrc }}</id>
@@ -55,21 +55,21 @@
 {% for chapter in book['book_chapters'] %} 
   <section>
    <title>
-    <p>Глава {{ chapter.chapter_number }}</p>
+    <p>Глава {{ chapter[0].chapter_number }}</p>
 	<empty-line/>
-    <p>{{ chapter.chapter_title }}</p>
+    <p>{{ chapter[0].chapter_title }}</p>
 	<empty-line/>
    </title>
 	<empty-line/>
 	<empty-line/>
-{% if book['book_chapters'][0][1] == 'allow' %}
-	{{ book['book_chapters'][0][0].chapter_text_br }}
-{% elif book['book_chapters'][0][1] == 'deny' %}
-	<p>{{ book['book_chapters'][0][0].short_text }}</p>
+{% if chapter[1] == 'allow' %}
+	{{ chapter[0].chapter_text_br }}
+{% elif chapter[1] == 'deny' %}
+	<p>{{ chapter[0].short_text }}</p>
 	<empty-line/> 
 	<empty-line/>
 	<p>Данная глава закрыта для доступа автором.</p>
-	<p>Глава будет доступна для бесплатного просмотра {{ book['book_chapters'][0][0].date_to_open.strftime('%d-%m-%Y') }}</p>
+	<p>Глава будет доступна для бесплатного просмотра {{ chapter[0].date_to_open.strftime('%d-%m-%Y') }}</p>
 {% endif %}
 
   </section>
