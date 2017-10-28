@@ -149,14 +149,14 @@ def export_book_method(get_book_info):
     return make_my_book
 
 
-@app.route('/exportbook/<string:book_format>/<int:id>', methods=['GET'])
+@app.route('/exportbook/<string:book_format>/<int:id>')
 @export_book_method
 def export_book(id, user_id=0):
     book = Book()
     return book.get_book_info(book_id=id, user_id=user_id)
 
 
-@app.route('/exportchapter/<string:book_format>/<int:id>', methods=['GET'])
+@app.route('/exportchapter/<string:book_format>/<int:id>')
 @export_book_method
 def export_chapter(id, user_id=0):
     chapter = Chapter()
