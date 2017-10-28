@@ -59,6 +59,7 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     about = Column(String(255))
     role_id = Column(Integer, ForeignKey('user_role.id'))
+    telegram_id = Column(Integer)
 
     __table_args__ = (
             Index(
@@ -79,6 +80,7 @@ class User(Base):
                 email=None,
                 role=None,
                 about=None,
+                telegram_id=None,
                 ):
 
         self.user_name = user_name
@@ -90,6 +92,7 @@ class User(Base):
         self.email = email
         self.about = about
         self.role = role
+        self.telegram_id = telegram_id
 
     def __repr__(self):
         return('<User {} {}>'.format(self.user_name, self.full_name))

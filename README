@@ -2,7 +2,6 @@ To create sqllite DB
 # sqlite3 bookshell.db < bookshell.sql
 
 to telegram-bot
-pip install python-magic
 pip install python-telegram-bot --upgrade
 
 

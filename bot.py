@@ -77,11 +77,15 @@ def get_genres(bot, update, user_data):
     genre_dict = get_genre_dict()
     user_genres = re.split(';|,', user_text)
     not_in_genre_list = []
+    user_genre_id_list = []
     for user_genre in user_genres:
-        if genre_dict.get(user_genre.lower()) is None:
+        user_genre_id = genre_dict.get(user_genre.lower())
+        if user_genre_id is None:
             not_in_genre_list.append(user_genre)
+        else:
+            user_genre_id_list.append(user_genre_id)
     if not_in_genre_list == []:
-        user_data['genre'] += user_genres
+        user_data['genre'] += user_genre_id_list
     else:
         update.message.reply_text(
             'Вы ввели жанры которых нет в списке {}'.format(
@@ -91,7 +95,7 @@ def get_genres(bot, update, user_data):
     update.message.reply_text(
         '''
         Вы выбрали следующие жанры {}
-        '''.format(user_data['genre']))
+        '''.format(user_genres))
     return CREATE_A_BOOK
 
 

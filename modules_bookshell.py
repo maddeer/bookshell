@@ -1,4 +1,6 @@
 from datetime import datetime
+import urllib.request
+import re
 
 import docx
 
@@ -20,7 +22,7 @@ def get_genre_dict():
     genre_dict = {}
     genre = Genre()
     for line in genre.get_all():
-            genre_dict[line.genre_name] = line.id
+            genre_dict[line.genre_name.lower()] = line.id
     return genre_dict
 
 
@@ -41,8 +43,8 @@ def save_the_book(
     db_session.commit()
     genre_dict = get_genre_dict()
     if genre:
-        for book_genre in genre:
-            new_book_genre = GenreBook(new_book.id, book_genre)
+        for genre_id in genre:
+            new_book_genre = GenreBook(new_book.id, genre_id)
             db_session.add(new_book_genre)
     if user_id:
         new_author = Author(user_id, new_book.id)
@@ -96,3 +98,20 @@ def get_ig_by_tlegram_name(name):
         return user.id
     else:
         return None
+
+
+def get_text_from_google_doc(user_url):
+    url = re.search(
+        r'(https://docs\.google\.com/document/d/\S+)/edit',
+        user_url
+        )
+    if url is None:
+        return None
+    url_to_download = url.group(1) + '/export?format=doc'
+    file = urllib.request.urlopen(url_to_download)
+    file_name = 'books/' + str(datetime.now()) + '_' + 'from_google' + '.docx'
+    my_bytes = file.read()
+    with open(file_name, 'wb') as file:
+        file.write(my_bytes)
+    my_text = docx_to_text(file_name)
+    return my_text
