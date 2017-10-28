@@ -1,0 +1,65 @@
+{% include "header.tmpl" %}
+
+<section id="contact">
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
+		  <strong>Ошибка!</strong> {{ message }}
+		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		  </button>
+		</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+			<div class="section-content">
+				<h4 class="section-header">Добавление Главы для Книги:</h4>
+				<h1>{{ book['book_data'].book_name }}</h1>
+			</div>
+			<div class="contact-section">
+			<div class="container">
+				<form class='my-2' method='POST' action='/addchapter/{{ book["book_data"].id }}' enctype='multipart/form-data'>
+					<div class="row">
+					<div class="col-md-6 form-line">
+			  			<div class="form-group">
+			  				<label class='label-contact'  for="exampleInputUsername">Название новой главы</label>
+					    	<input type="text" class="form-control" name="chapter_title" id="chapter_title" placeholder="Название главы">
+				  		</div>
+						<div class="form-group"> <!-- Date input -->
+						<label class='label-contact'  class="control-label" for="date">Дата открытия главы для общего доступа</label>
+						  <div class="input-group date" id="dp3" data-date="12-02-2017" data-date-format="mm-dd-yyyy">
+						  <input name="date" class="form-control" type="text" value="12-02-2017">
+						  <span class="input-group-addon btn"><i class="glyphicon glyphicon-calendar" id="butt"></i></span>
+						  </div>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+					    <div class="form-group">
+						  <label class='label-contact date'>Номер Главы</label>
+						  <select class="custom-select form-control" id="chapter_number" name='chapter_number' >
+							{% for chapter in book.book_chapters %}
+								 <option value="{{ chapter[0].chapter_number }} ">{{ chapter[0].chapter_number }}. {{ chapter[0].chapter_title }}</option>
+							{% endfor %}
+							<option selected value="{{ next_chapter }}">{{ next_chapter }}. Нет названия</option>
+						  </select>
+					    </div>
+					    <div class="form-group">
+							<label class='label-contact'  for="fileInput">Добавьте файл главы</label>
+							<label class="custom-file form-control">
+							<input type="file" id="file" name='chapter' class="custom-file-input">
+							<span class="custom-file-control"></span> </label>
+					    </div>
+			  			<div>
+			  				<button type='submit' class="btn btn-outline-success my-2 my-sm-0 submit">Добавить главу</button>
+			  			</div>
+			  			</div>		
+					</div>
+					</div>
+				</form>
+			</div>
+</section>
+
+{% include "footer.tmpl" %}
+

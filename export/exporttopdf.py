@@ -2,6 +2,8 @@ import os.path
 import sys
 sys.path.insert(0, '../')
 
+from io import BytesIO
+
 from datetime import datetime, timedelta
 
 from PyCRC.CRC32 import CRC32
@@ -36,7 +38,9 @@ def make_pdf_book(book):
 
     pdf.title_page(book['book_authors'], pdf.book_name)
     pdf.add_page()
-    pdf.chapter_body(book['book_data'].book_description)
+
+    if book['book_data'].book_description: 
+        pdf.chapter_body(book['book_data'].book_description)
 
     book_text = ''
     for chapter in book['book_chapters']:
@@ -56,10 +60,17 @@ def make_pdf_book(book):
     crc32 = CRC32().calculate(book_text)
     pdf_file_name = '{}_{}_{}.pdf'.format(authors, pdf.book_name.replace(' ', '_'), crc32)
     pdf_file_name = transliterate(pdf_file_name)
-    pdf_file_name = os.path.join('static', 'pdf', pdf_file_name)
+    #pdf_file_name = os.path.join('static', 'pdf', pdf_file_name)
 
-    pdf.output(pdf_file_name, 'F')
-    return pdf_file_name
+    with BytesIO() as pdf_file: 
+        pdf_file.write(pdf.output(dest='S').encode('latin-1'))
+
+        book_file = { 
+                   'file_name': pdf_file_name,
+                   'file': pdf_file.getvalue(),
+                   'mimetype': 'application/pdf',
+                   }
+        return book_file 
 
 
 if __name__ == '__main__': 
@@ -67,6 +78,10 @@ if __name__ == '__main__':
     date = datetime.utcnow() - timedelta(days=10)
     book_info = book.get_book_info(book_id=1, user_id=2, date_now=date)
     book_file = make_pdf_book(book_info)
-    print(book_file)
+
+    with open(book_file['file_name'], "w") as f:
+        f.write(book_file['file'])
+
+    print(book_file['file_name'])
     
 

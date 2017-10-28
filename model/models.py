@@ -9,7 +9,7 @@ from binascii import hexlify
 from datetime import datetime
 
 from sqlalchemy import create_engine, or_, literal_column
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Index
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Index, SmallInteger
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -111,11 +111,11 @@ class User(Base):
     @property
     def full_name(self):
         if not self.first_name:
-            self.first_name = '' 
+            self.first_name = ''
         if not self.middle_name:
-            self.middle_name = '' 
+            self.middle_name = ''
         if not self.last_name:
-            self.last_name = '' 
+            self.last_name = ''
 
         return ' '.join([
                         self.first_name,
@@ -139,6 +139,10 @@ class Genre(Base):
 
     def __repr__(self):
         return('<Genre {} {}>'.format(self.id, self.genre_name))
+
+    @staticmethod
+    def get_all():
+        return Genre.query.order_by( Genre.id ).all()
 
 
 class Book(Base):
@@ -184,6 +188,8 @@ class Book(Base):
                 literal_column("'allow'").label('access')
             ).filter(
                 Chapter.book_id == book_id,
+            ).filter(
+                or_( Chapter.deleted < 2, Chapter.deleted == None )
             ).order_by(
                 Chapter.chapter_number,
             ).all()
@@ -201,6 +207,8 @@ class Book(Base):
                     )
             ).filter(
                 Chapter.book_id == book_id,
+            ).filter(
+                or_(Chapter.deleted < 1, Chapter.deleted == None )
             )
 
             not_in = db_session.query(
@@ -220,6 +228,8 @@ class Book(Base):
                 literal_column("'deny'").label('access')
             ).filter(
                 ~Chapter.id.in_(not_in)
+            ).filter(
+                Chapter.book_id == book_id,
             )
 
             book_chapters = allowed.union(
@@ -276,7 +286,9 @@ class Chapter(Base):
     chapter_title = Column(String(255))
     date_to_open = Column(DateTime, default=datetime.utcnow)
     last_edited = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    deleted = Column(SmallInteger)
     chapter_text = Column(Text)
+
     alowed_user = relationship('Grant', backref='alowed')
 
     def __init__(
@@ -285,7 +297,8 @@ class Chapter(Base):
                 chapter_number=None,
                 chapter_title=None,
                 date_to_open=None,
-                chapter_text=None
+                chapter_text=None,
+                deleted=0,
                 ):
 
         self.book_id = book_id
@@ -293,6 +306,7 @@ class Chapter(Base):
         self.chapter_title = chapter_title
         self.date_to_open = date_to_open
         self.chapter_text = chapter_text
+        self.deleted = deleted
 
     def __repr__(self):
         return('<Chapter {} {} {}>'.format(
@@ -321,6 +335,8 @@ class Chapter(Base):
                 literal_column("'allow'").label('access')
             ).filter(
                 Chapter.id == chapter_id,
+            ).filter(
+                or_( Chapter.deleted < 2, Chapter.deleted == None )
             ).all()
 
         else:
@@ -336,6 +352,8 @@ class Chapter(Base):
                     )
             ).filter(
                 Chapter.id == chapter_id,
+            ).filter(
+                or_(Chapter.deleted < 1, Chapter.deleted == None )
             )
 
             not_in = db_session.query(

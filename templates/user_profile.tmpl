@@ -17,6 +17,7 @@
 	<p>Email: {{ user_data.email }}</p>
 	<p>Telegram: {{ user_data.telegram_login }}</p>
 	<p>О себе: {{ user_data.about }}</p>
+
 	{% elif edit %}
 	<form method='POST' action='/profile/'>
 	<p>Имя пользователя:
@@ -53,5 +54,28 @@
 	 </div>
 	</div>
 </div>
+
+{% if not edit %}
+<h4>Список книг пользоватля: 
+{% if owner %}
+<a style="margin-top: 5px;" type="button" class="btn btn-dark" href = '/addbook'>Добавить Книгу</a>
+{% endif %}
+</h4>
+<div class="container-fluid">
+{% for book in user_data.books_author %}
+	<div class="media">
+	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
+	  <div class="media-body">
+		<h5 class="mt-0"><a  href='/book/{{ book.books_author.id }}'>{{ book.books_author.book_name }}</a></h5>
+	 {% for author in book.books_author.authors %}
+		<h6><a href='/profile/{{ author.user.id }}'>{{ author.user.full_name }}</a></h6>
+	 {% endfor %}
+		{{ book.books_author.book_description }}
+	  </div>
+	</div>
+{% endfor %}
+</div>
+
+{% endif %}
 
 {% include "footer.tmpl" %}
