@@ -117,7 +117,7 @@ def chapter(chapter_id):
             )
 
 
-def export_book(get_book_info):
+def export_book_method(get_book_info):
     @wraps(get_book_info)
     def make_my_book(id, user_id=0):
         username = session.get('username')
@@ -142,8 +142,6 @@ def export_book(get_book_info):
         elif book_format == 'fb2': 
             book_file = make_fb2_book(book_info)
 
-        print(book_file['file_name'])
-
         return send_file(
                         BytesIO(book_file['file']), 
                         as_attachment=True,
@@ -154,14 +152,14 @@ def export_book(get_book_info):
 
 
 @app.route('/exportbook/<int:id>', methods=['GET'])
-@export_book
+@export_book_method
 def bookpdf(id, user_id=0):
     book = Book()
     return book.get_book_info(book_id=id, user_id=user_id)
 
 
 @app.route('/exportchapter/<int:id>', methods=['GET'])
-@export_book
+@export_book_method
 def chapterpdf(id, user_id=0):
     chapter = Chapter()
     return chapter.get_chapter_info(chapter_id=id, user_id=user_id)
