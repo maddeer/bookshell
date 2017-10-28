@@ -15,10 +15,10 @@
 			{{ book['book_data'].book_description }}
 		<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
 		  <div class="btn-group mr-2" role="group" aria-label="First group">
-			<a type="button" class="btn btn-secondary" href='/exportbook/{{ book['book_data'].id }}?format=pdf'>pdf</a>
-			<a type="button" class="btn btn-secondary" href='/exportbook/{{ book['book_data'].id }}?format=fb2'>fb2</a>
-			<a type="button" class="btn btn-secondary" href='/exportbook/{{ book['book_data'].id }}?format=fb2'>ebub</a>
-			<a type="button" class="btn btn-secondary" href='/exportbook/{{ book['book_data'].id }}?format=fb2'>mobi</a>
+			<a type="button" class="btn btn-secondary" href='/exportbook/pdf/{{ book['book_data'].id }}'>pdf</a>
+			<a type="button" class="btn btn-secondary" href='/exportbook/fb2/{{ book['book_data'].id }}'>fb2</a>
+			<a type="button" class="btn btn-secondary" href='/exportbook/fb2/{{ book['book_data'].id }}'>ebub</a>
+			<a type="button" class="btn btn-secondary" href='/exportbook/fb2/{{ book['book_data'].id }}'>mobi</a>
 		  </div>
 		</div>
 	  </div>
@@ -41,10 +41,10 @@
 		<a href='/chapter/{{ item[0].id }}'>{{ item[0].short_text }}</a>
 		<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
 		  <div class="btn-group mr-2" role="group" aria-label="First group">
-			<a type="button" class="btn btn-secondary" href='/exportchapter/{{ item[0].id }}format=pdf'>pdf</a>
-			<a type="button" class="btn btn-secondary" href='/exportchapter/{{ item[0].id }}?format=fb2'>fb2</a>
-			<a type="button" class="btn btn-secondary" href='/exportchapter/{{ item[0].id }}?format=fb2'>ebub</a>
-			<a type="button" class="btn btn-secondary" href='/exportchapter/{{ item[0].id }}?format=fb2'>mobi</a>
+			<a type="button" class="btn btn-secondary" href='/exportchapter/pdf/{{ item[0].id }}'>pdf</a>
+			<a type="button" class="btn btn-secondary" href='/exportchapter/fb2/{{ item[0].id }}'>fb2</a>
+			<a type="button" class="btn btn-secondary" href='/exportchapter/fb2/{{ item[0].id }}'>ebub</a>
+			<a type="button" class="btn btn-secondary" href='/exportchapter/fb2/{{ item[0].id }}'>mobi</a>
 		  </div>
 		</div>
 	  </div>

@@ -119,15 +119,13 @@ def chapter(chapter_id):
 
 def export_book_method(get_book_info):
     @wraps(get_book_info)
-    def make_my_book(id, user_id=0):
+    def make_my_book(id, user_id=0, book_format='pdf'):
         username = session.get('username')
         user_id = session.get('user_id')
         avaliable_formats = ['pdf', 'fb2',]
         
-        if request.args.get('format', 'pdf') in avaliable_formats:
-            book_format = request.args.get('format', 'pdf') 
-        else :
-            book_format = 'pdf'
+        if book_format not in avaliable_formats:
+            abort(404)
 
         if not user_id:
             user_id = 0
@@ -151,16 +149,16 @@ def export_book_method(get_book_info):
     return make_my_book
 
 
-@app.route('/exportbook/<int:id>', methods=['GET'])
+@app.route('/exportbook/<string:book_format>/<int:id>', methods=['GET'])
 @export_book_method
-def bookpdf(id, user_id=0):
+def export_book(id, user_id=0):
     book = Book()
     return book.get_book_info(book_id=id, user_id=user_id)
 
 
-@app.route('/exportchapter/<int:id>', methods=['GET'])
+@app.route('/exportchapter/<string:book_format>/<int:id>', methods=['GET'])
 @export_book_method
-def chapterpdf(id, user_id=0):
+def export_chapter(id, user_id=0):
     chapter = Chapter()
     return chapter.get_chapter_info(chapter_id=id, user_id=user_id)
 
