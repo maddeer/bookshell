@@ -144,11 +144,11 @@ class Genre(Base):
 
     @staticmethod
     def get_all():
-        return Genre.query.filter( Genre.genre_name_type != None ).order_by( Genre.id ).all()
+        return Genre.query.filter( Genre.genre_name_type != '' ).order_by( Genre.id ).all()
 
     @staticmethod
     def get_parents():
-        return Genre.query.filter( Genre.genre_name_type == None ).order_by( Genre.id ).all()
+        return Genre.query.filter( Genre.genre_name_type == '' ).order_by( Genre.id ).all()
 
     @staticmethod
     def get_children(parent_id):
