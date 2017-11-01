@@ -151,7 +151,7 @@ class Genre(Base):
         return Genre.query.filter( Genre.genre_name_type == None ).order_by( Genre.id ).all()
 
     @staticmethod
-    def get_parents(parent_id):
+    def get_children(parent_id):
         return Genre.query.filter( Genre.parent == parent_id ).order_by( Genre.id ).all()
 
 class Book(Base):
