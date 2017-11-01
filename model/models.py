@@ -130,7 +130,7 @@ class Genre(Base):
     id = Column(Integer, primary_key=True)
     genre_name = Column(String(25), nullable=False)
     genre_name_type = Column(String(25))
-    parent = (Integer, ForeignKey('genre.id')) 
+    parent = Column(Integer, ForeignKey('genre.id')) 
     genre = relationship('GenreBook', backref='genre')
 
 
@@ -254,6 +254,16 @@ class Book(Base):
             }
         return book_dict
 
+    def get_books_by_genre(self,genre_id):
+        genre = Genre()
+        parent_genres = genre.get_parents()
+
+        if genre_id in [ genre_row.id for genre_row in parent_genres ]:
+            children = genre.get_children(genre_id)
+            print(children)
+            return self.query.outerjoin( GenreBook, GenreBook.book_id == Book.id ).filter(GenreBook.genre_id.in_([child.id for child in children])).all()
+        else:
+            return self.query.outerjoin( GenreBook, GenreBook.book_id == Book.id ).filter(GenreBook.genre_id == genre_id).all()
 
 class GenreBook(Base):
     __tablename__ = 'genre_book'
