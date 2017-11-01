@@ -129,21 +129,30 @@ class Genre(Base):
 
     id = Column(Integer, primary_key=True)
     genre_name = Column(String(25), nullable=False)
-    genre_name_type = Column(String(25), nullable=False)
+    genre_name_type = Column(String(25))
+    parent = (Integer, ForeignKey('genre.id')) 
     genre = relationship('GenreBook', backref='genre')
 
 
-    def __init__(self, genre_name=None, genre_name_type=None):
+    def __init__(self, genre_name=None, genre_name_type=None, parent=None):
         self.genre_name = genre_name
         self.genre_name_type = genre_name_type
+        self.parent = parent
 
     def __repr__(self):
         return('<Genre {} {}>'.format(self.id, self.genre_name))
 
     @staticmethod
     def get_all():
-        return Genre.query.order_by( Genre.id ).all()
+        return Genre.query.filter( Genre.genre_name_type != None ).order_by( Genre.id ).all()
 
+    @staticmethod
+    def get_parents():
+        return Genre.query.filter( Genre.genre_name_type == None ).order_by( Genre.id ).all()
+
+    @staticmethod
+    def get_parents(parent_id):
+        return Genre.query.filter( Genre.parent == parent_id ).order_by( Genre.id ).all()
 
 class Book(Base):
     __tablename__ = 'book'
