@@ -28,13 +28,10 @@ bugun = moment(date).format("DD/MM/YYYY");
     var deger = $(this).val();
   });      
       
- 
-      
 $('.input-group').find('.glyphicon-calendar').on('click', function(){
 //date_input.trigger('focus');
 //date_input.datepicker('show');
  //$("h3").html("event : click");
-
 
 if( !date_input.data('datepicker').picker.is(":visible"))
 {
@@ -49,6 +46,32 @@ if( !date_input.data('datepicker').picker.is(":visible"))
 
 
 });      
- 
- 
- });
+
+$('.set-deleted').bind('click', function(event){
+	event.preventDefault();
+	var targetid='#div'+event.target.id; 
+	$.getJSON('/delete-chapter/'+event.target.id, function(data){ 
+		console.log(data['deleted']);
+		if ( data['deleted'] == 1 ){
+			$(targetid).addClass('deleted');
+			if ( $('input[type=radio][name=ShowDeleted]:checked').val() == 'hide' ){
+				$(targetid).hide();
+			}
+		}
+		else if ( data['deleted'] == 0 ){
+			$(targetid).removeClass('deleted').show();
+		};
+	});
+});
+
+$('input[type=radio][name=ShowDeleted]').change(function() {
+    if (this.value == 'show') {
+		$( ".deleted" ).show();
+    }
+    else if (this.value == 'hide') {
+		$( ".deleted" ).hide();
+    }
+});
+$( ".deleted" ).hide();
+
+});

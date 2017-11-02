@@ -1,17 +1,15 @@
 {% include "header.tmpl" %}
-
-<div class="container-flud">
+<div class="container-fluid">
   <div class="row">
 	{% include "genres.tmpl" %}
 	</div>
 	<div class="col">
-	<h1>Новинки на Книжной полке</h1>
+<h1>Книги в жанре: {{ current_genre.genre_name }} </h1>
 {% for item in book %}
 	<div class="media">
 	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
 	  <div class="media-body">
-		<h5 class="mt-0"><a  href='/book/{{ item.id }}'>{{ item.book_name }}</a>
-		<span class="badge badge-info">New</span></h5>
+		<h5 class="mt-0"><a  href='/book/{{ item.id }}'>{{ item.book_name }}</a></h5>
 	 {% for author in item.authors %}
 		<a href='/profile/{{ author.user.id }}'>{{ author.user.full_name }}</a>
 	 {% endfor %}
@@ -23,7 +21,8 @@
 	  </div>
 	</div>
 {% endfor %}
-</div>
+	</div>
+  </div>
 </div>
 
 {% include "footer.tmpl" %}

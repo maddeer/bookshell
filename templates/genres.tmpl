@@ -1,0 +1,33 @@
+
+	<div class="col col-md-auto"> 
+<div id="accordion" role="tablist">
+{% for parent_genre in nav_get_parents %}
+  <div class="card" style="width: 20rem;">
+    <div class="card-header" role="tab">
+      <h5 class="mb-0">
+        <a data-toggle="collapse" href="#collapse{{ parent_genre.id }}" aria-expanded="true" aria-controls="collapse{{ parent_genre.id }}">
+          {{ parent_genre.genre_name }}
+        </a>
+      </h5>
+    </div>
+	{% if current_genre and ( current_genre.id == parent_genre.id or current_genre.id == parent_genre.id ) %}
+    <div id="collapse{{ parent_genre.id }}" class="collapse show" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+	{% else %}
+    <div id="collapse{{ parent_genre.id }}" class="collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+	{% endif %}
+      <div class="card-body">
+		{% for genre in genres %}
+			{% if genre[0].parent == parent_genre.id %}
+				{% if genre[1] == 0 %}
+		<br/><a class='dropdown-item disabled'>{{ genre[0].genre_name }}</a>
+				{% else %}
+		<br/><a class='dropdown-item' href='/genres/{{ genre[0].id }}'>{{ genre[0].genre_name }}</a>
+				{% endif %}
+				
+			{% endif %}
+		{% endfor %}
+      </div>
+    </div>
+  </div>
+{% endfor %}
+</div>	

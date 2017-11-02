@@ -10,9 +10,13 @@
 	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
 	  <div class="media-body">
 	 {% for author in book['book_authors'] %}
-		<h6><a href='/profile/{{ author.id }}'>{{ author.full_name }}</a></h6>
+		<a href='/profile/{{ author.id }}'>{{ author.full_name }}</a>
 	 {% endfor %}
-			{{ book['book_data'].book_description }}
+		<br/>
+		{% for genre in book['book_data'].genre %}
+		<span class="badge badge-default"><a href='/genres/{{ genre.genre.id}}'>{{ genre.genre.genre_name }}</a></span>
+		{% endfor %}
+			<p>{{ book['book_data'].book_description }}</p>
 		<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
 		  <div class="btn-group mr-2" role="group" aria-label="First group">
 			<a type="button" class="btn btn-secondary" href='/exportbook/pdf/{{ book['book_data'].id }}'>pdf</a>
@@ -28,23 +32,41 @@
 	</div>
 </div>
 <div class="container">
+
+{% if owner %}
+<div class="btn-group" data-toggle="buttons">
+  <label class="btn btn-secondary active" aria-pressed="true">
+	  <input type="radio" checked id='radio-hide' name='ShowDeleted' value='hide'> Скрыть удаленные 
+  </label>
+  <label class="btn btn-secondary" aria-pressed="true">
+	  <input type="radio" id='radio-show' name='ShowDeleted' value='show'> Показать удаленные 
+  </label>
+</div>
+{% endif %}
 {% for item in book['book_chapters'] %}
 	{% if not item[0].deleted or item[0].deleted < 1 or owner %}
-	<div class="media">
+	{% if not item[0].deleted or item[0].deleted < 1 %}
+	<div class="media" id='div{{ item[0].id }}'>
+	{% else %}
+	<div class="media deleted" id='div{{ item[0].id }}'>
+	{% endif %}
 	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
 	  <div class="media-body">
+		 {% if owner %}
+		   <a type="button" class="badge badge-pill badge-default set-deleted" id='{{ item[0].id }}' href="#">Удалить</a>
+	  	 {% endif %}
 		<h4 class="mt-0">
-			<a  href='/chapter/{{ item[0].id }}'>
+			<a href='/chapter/{{ item[0].id }}'>
 			 <span class="badge badge-light">Глава:</span> {{ item[0].chapter_title }}
 			</a>
 		</h4>
 		<a href='/chapter/{{ item[0].id }}'>{{ item[0].short_text }}</a>
 		<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
 		  <div class="btn-group mr-2" role="group" aria-label="First group">
-			<a type="button" class="btn btn-secondary" href='/exportchapter/pdf/{{ item[0].id }}'>pdf</a>
-			<a type="button" class="btn btn-secondary" href='/exportchapter/fb2/{{ item[0].id }}'>fb2</a>
-			<a type="button" class="btn btn-secondary" href='/exportchapter/fb2/{{ item[0].id }}'>ebub</a>
-			<a type="button" class="btn btn-secondary" href='/exportchapter/fb2/{{ item[0].id }}'>mobi</a>
+			<a type="button" class="btn btn-secondary btn-sm" href='/exportchapter/pdf/{{ item[0].id }}'>pdf</a>
+			<a type="button" class="btn btn-secondary btn-sm" href='/exportchapter/fb2/{{ item[0].id }}'>fb2</a>
+			<a type="button" class="btn btn-secondary btn-sm" href='/exportchapter/fb2/{{ item[0].id }}'>ebub</a>
+			<a type="button" class="btn btn-secondary btn-sm" href='/exportchapter/fb2/{{ item[0].id }}'>mobi</a>
 		  </div>
 		</div>
 	  </div>

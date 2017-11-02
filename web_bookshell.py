@@ -6,7 +6,7 @@ from datetime import datetime
 from functools import wraps
 
 from flask import Flask, abort, request, render_template, session, make_response
-from flask import redirect, url_for, flash, send_file
+from flask import redirect, url_for, flash, send_file, jsonify
 from werkzeug.utils import secure_filename
 
 from configparser import ConfigParser
@@ -37,7 +37,12 @@ def index():
         offset = 0
     book_info = book.query.limit(25).offset(offset).all()
     username = session.get('username')
-    return render_template('index.tmpl', username=username, book=book_info)
+    return render_template(
+                'index.tmpl',
+                username=username,
+                book=book_info,
+                nav_get_parents=nav_get_parents(),
+            )
 
 
 @app.route('/login', methods=['POST'])
@@ -49,17 +54,25 @@ def login():
 
     user_data = user.query.filter( User.user_name == login ).first()
     if not user_data:
-        return render_template('login.tmpl', login='No login')
+        return render_template(
+                    'login.tmpl',
+                    login='No login',
+                    nav_get_parents=nav_get_parents(),
+                )
 
     if user.check_user_pass(user_id=user_data.id, password=password):
-        render = render_template('login.tmpl', login=login)
+        render = render_template('login.tmpl', login=login, nav_get_parents=nav_get_parents(),)
         #resp = make_response(render)
         #resp.set_cookie('username', user_data.user_name)
         session['username'] = user_data.user_name
         session['user_id'] = user_data.id
-        return redirect(url_for('index'))
+        return redirect(request.referrer) or redirect(url_for('index'))
     else:
-        return render_template('login.tmpl', login='No login')
+        return render_template(
+                    'login.tmpl',
+                    login='No login',
+                    nav_get_parents=nav_get_parents(),
+                )
 
 
 @app.route('/logout')
@@ -92,6 +105,7 @@ def book(book_id):
                 username=username,
                 book=book_info,
                 owner=owner,
+                nav_get_parents=nav_get_parents(),
             )
 
 
@@ -114,6 +128,7 @@ def chapter(chapter_id):
                 'chapter.tmpl',
                 username=username,
                 book=chapter_info,
+                nav_get_parents=nav_get_parents(),
             )
 
 
@@ -189,11 +204,12 @@ def profile(user_id=None):
             update_profile(user_data=user_data, update_form=request.form)
 
     return render_template(
-            'user_profile.tmpl',
-            username=username,
-            user_data=user_data,
-            owner=owner,
-            edit=edit
+                'user_profile.tmpl',
+                username=username,
+                user_data=user_data,
+                owner=owner,
+                edit=edit,
+                nav_get_parents=nav_get_parents(),
             )
 
 
@@ -267,7 +283,12 @@ def addbook():
 
     genre = Genre()
     genre_list = genre.get_all()
-    return render_template('add_book.tmpl', username=username, genre_list=genre_list)
+    return render_template(
+                'add_book.tmpl',
+                username=username,
+                genre_list=genre_list,
+                nav_get_parents=nav_get_parents(),
+            )
 
 
 @app.route('/addchapter/<int:book_id>', methods=['POST', 'GET'])
@@ -319,12 +340,82 @@ def add_chapter_web(book_id):
 
     next_chapter = book_info['book_chapters'][-1][0].chapter_number + 1
 
-    return render_template('add_chapter.tmpl', username=username, book=book_info, next_chapter=next_chapter)
+    return render_template(
+                'add_chapter.tmpl',
+                username=username,
+                book=book_info,
+                next_chapter=next_chapter,
+                nav_get_parents=nav_get_parents(),
+            )
 
 
 def allowed_file(filename):
     return '.' in filename and \
        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/delete-chapter/<int:chapter_id>')
+def delete_chapter(chapter_id):
+    username = session.get('username')
+    user_id = session.get('user_id')
+
+    if not username:
+        return redirect(url_for('index'))
+
+    chapter = Chapter()
+    book_info = chapter.get_chapter_info(chapter_id=chapter_id, user_id=user_id)
+    owner = False
+
+    if not book_info:
+        abort(404)
+
+    for author in book_info['book_authors']:
+        if author.id == user_id:
+            owner = True
+
+    if not owner:
+        abort(403)
+
+    if not book_info['book_chapters'][0][0].deleted or book_info['book_chapters'][0][0].deleted == 0: 
+        book_info['book_chapters'][0][0].deleted = 1
+        db_session.commit()
+        return jsonify(deleted=1)
+    elif book_info['book_chapters'][0][0].deleted == 1:
+        book_info['book_chapters'][0][0].deleted = 0
+        db_session.commit()
+        return jsonify(deleted=0)
+    elif book_info['book_chapters'][0][0].deleted > 1: 
+        return jsonify(deleted=1)
+    else:
+        return jsonify(deleted=0)
+
+
+@app.route('/genres/<int:genre_id>')
+def get_books_by_genre_web(genre_id=110):
+    username = session.get('username')
+    user_id = session.get('user_id')
+
+    book = Book()
+    books = book.get_books_by_genre(genre_id)
+    if not books:
+        abort(404)
+
+    genre = Genre()
+    counted_genres = genre.get_all_counted()
+    current_genre = genre.query.filter(Genre.id == genre_id).first()
+
+    return render_template(
+                'genre_search.tmpl',
+                book=books,
+                username=username,
+                current_genre=current_genre,
+                genres=counted_genres,
+                nav_get_parents=nav_get_parents(),
+            )
+
+def nav_get_parents():
+    genre = Genre()
+    return genre.get_parents()
 
 
 if __name__ == '__main__':

@@ -8,7 +8,7 @@
     {% if not edit %}
 		{% if owner %}
 		<p>
-		<button style="margin-top: 5px;" type="button" class="btn btn-dark"
+		<button style="margin-top: 5px;" type="button" class="btn btn-outline-secondary btn-sm"
 			onclick="window.location.href = '/profile/?edit=true'">Отредактировать Профиль</button>
 		</p>
 		{% endif %}
@@ -48,7 +48,7 @@
 	<p>О себе:
         <input class="form-control mr-sm-2" type="text" placeholder="{{ user_data.about }}" aria-label="{{ user_data.about }}" name='about'>
     </p>
-    <br><button class="btn btn-outline-success my-2 my-sm-0" type="submit" >Сохранить</button>
+    <br><button class="btn btn-outline-success btn-sm my-2 my-sm-0" type="submit" >Сохранить</button>
 	</form>
 	{% endif %}
 	 </div>
@@ -58,19 +58,23 @@
 {% if not edit %}
 <h4>Список книг пользоватля: 
 {% if owner %}
-<a style="margin-top: 5px;" type="button" class="btn btn-dark" href = '/addbook'>Добавить Книгу</a>
+<a style="margin-top: 5px;" type="button" class="btn btn-outline-secondary btn-sm" href = '/addbook'>Добавить Книгу</a>
 {% endif %}
 </h4>
 <div class="container-fluid">
 {% for book in user_data.books_author %}
-	<div class="media">
+	<div class="media" id='{{ book.books_author.id }}'>
 	  <img class="d-flex mr-3 glyph-icon" src="/static/img/si-glyph-book-3.svg" alt="book image">
 	  <div class="media-body">
 		<h5 class="mt-0"><a  href='/book/{{ book.books_author.id }}'>{{ book.books_author.book_name }}</a></h5>
 	 {% for author in book.books_author.authors %}
-		<h6><a href='/profile/{{ author.user.id }}'>{{ author.user.full_name }}</a></h6>
+		<a href='/profile/{{ author.user.id }}'>{{ author.user.full_name }}</a>
 	 {% endfor %}
-		{{ book.books_author.book_description }}
+		<br/>
+		{% for genre in book.books_author.genre %}
+		<span class="badge badge-default"><a href='/genres/{{ genre.genre.id}}'>{{ genre.genre.genre_name }}</a></span>
+		{% endfor %}
+		<p>{{ book.books_author.book_description }}</p>
 	  </div>
 	</div>
 {% endfor %}

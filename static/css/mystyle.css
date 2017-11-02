@@ -6,16 +6,15 @@
 	width:154px;
 	height:154px;
 }
-A {
-	color: black;
+A{
+	color: inherit;
 }
 A:hover {
-	color: black;
+	color: inherit;
 }
 .btn-toolbar {
 	margin-bottom: 20px;
 }
-
 
 /*Contact sectiom*/
 .content-header{
@@ -74,3 +73,13 @@ select#genres{
 .media{
 	padding-bottom: 20px;
 }
+
+.deleted{
+	color: lightgrey;
+}
+
+.badge-light {
+	  background-color: white;
+	  color: inherit;
+}
+

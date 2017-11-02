@@ -8,9 +8,9 @@ from binascii import hexlify
 
 from datetime import datetime
 
-from sqlalchemy import create_engine, or_, literal_column
+from sqlalchemy import create_engine, or_, literal_column, func
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Index, SmallInteger
-from sqlalchemy.orm import scoped_session, sessionmaker, relationship
+from sqlalchemy.orm import scoped_session, sessionmaker, relationship, joinedload
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -154,6 +154,21 @@ class Genre(Base):
     def get_children(parent_id):
         return Genre.query.filter( Genre.parent == parent_id ).order_by( Genre.id ).all()
 
+    @staticmethod
+    def get_all_counted():
+        genre = Genre()
+        return genre.query.add_column(
+                    func.count(
+                        GenreBook.book_id
+                    )).outerjoin(
+                        GenreBook,
+                        GenreBook.genre_id == Genre.id,
+                    ).filter(
+                        Genre.genre_name_type != ''
+                    ).group_by(Genre.id).all()
+
+
+
 class Book(Base):
     __tablename__ = 'book'
 
@@ -260,10 +275,30 @@ class Book(Base):
 
         if genre_id in [ genre_row.id for genre_row in parent_genres ]:
             children = genre.get_children(genre_id)
-            print(children)
-            return self.query.outerjoin( GenreBook, GenreBook.book_id == Book.id ).filter(GenreBook.genre_id.in_([child.id for child in children])).all()
+            return self.query.outerjoin( 
+                        GenreBook,
+                        GenreBook.book_id == Book.id 
+                    ).filter(
+                        GenreBook.genre_id.in_(
+                            [child.id for child in children]
+                    )).options(
+                        joinedload(
+                            Book.authors
+                        ).joinedload(
+                            Author.user
+                    )).all()
         else:
-            return self.query.outerjoin( GenreBook, GenreBook.book_id == Book.id ).filter(GenreBook.genre_id == genre_id).all()
+            return self.query.outerjoin( 
+                        GenreBook,
+                        GenreBook.book_id == Book.id
+                    ).filter(
+                        GenreBook.genre_id == genre_id
+                    ).options(
+                        joinedload(
+                            Book.authors
+                        ).joinedload(
+                            Author.user
+                    )).all()
 
 class GenreBook(Base):
     __tablename__ = 'genre_book'
