@@ -37,10 +37,14 @@ def index():
         offset = 0
     book_info = book.query.limit(25).offset(offset).all()
     username = session.get('username')
+    genre = Genre()
+    counted_genres = genre.get_all_counted()
+
     return render_template(
                 'index.tmpl',
                 username=username,
                 book=book_info,
+                genres=counted_genres,
                 nav_get_parents=nav_get_parents(),
             )
 
