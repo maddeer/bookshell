@@ -10,7 +10,8 @@
         </a>
       </h5>
     </div>
-	{% if current_genre and ( current_genre.id == parent_genre.id or current_genre.id == parent_genre.id ) %}
+	{% if (( current_genre is defined ) and
+		 ( current_genre.id == parent_genre.id or current_genre.parent == parent_genre.id )) %}
     <div id="collapse{{ parent_genre.id }}" class="collapse show" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
 	{% else %}
     <div id="collapse{{ parent_genre.id }}" class="collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
