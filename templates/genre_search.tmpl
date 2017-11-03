@@ -1,8 +1,6 @@
 {% include "header.tmpl" %}
 <div class="container-fluid">
   <div class="row">
-	{% include "genres.tmpl" %}
-	</div>
 	<div class="col">
 <h1>Книги в жанре: {{ current_genre.genre_name }} </h1>
 {% for item in book %}
@@ -22,6 +20,7 @@
 	</div>
 {% endfor %}
 	</div>
+	{% include "genres.tmpl" %}
   </div>
 </div>
 

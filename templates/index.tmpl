@@ -2,8 +2,6 @@
 
 <div class="container-flud">
   <div class="row">
-	{% include "genres.tmpl" %}
-	</div>
 	<div class="col">
 	<h1>Новинки на Книжной полке</h1>
 {% for item in book %}
@@ -23,6 +21,8 @@
 	  </div>
 	</div>
 {% endfor %}
+</div>
+	{% include "genres.tmpl" %}
 </div>
 </div>
 
