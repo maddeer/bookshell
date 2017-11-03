@@ -8,9 +8,9 @@ from binascii import hexlify
 
 from datetime import datetime
 
-from sqlalchemy import create_engine, or_, literal_column
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Index
-from sqlalchemy.orm import scoped_session, sessionmaker, relationship
+from sqlalchemy import create_engine, or_, literal_column, func
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Index, SmallInteger
+from sqlalchemy.orm import scoped_session, sessionmaker, relationship, joinedload
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -111,11 +111,11 @@ class User(Base):
     @property
     def full_name(self):
         if not self.first_name:
-            self.first_name = '' 
+            self.first_name = ''
         if not self.middle_name:
-            self.middle_name = '' 
+            self.middle_name = ''
         if not self.last_name:
-            self.last_name = '' 
+            self.last_name = ''
 
         return ' '.join([
                         self.first_name,
@@ -129,16 +129,44 @@ class Genre(Base):
 
     id = Column(Integer, primary_key=True)
     genre_name = Column(String(25), nullable=False)
-    genre_name_type = Column(String(25), nullable=False)
+    genre_name_type = Column(String(25))
+    parent = Column(Integer, ForeignKey('genre.id')) 
     genre = relationship('GenreBook', backref='genre')
 
 
-    def __init__(self, genre_name=None, genre_name_type=None):
+    def __init__(self, genre_name=None, genre_name_type=None, parent=None):
         self.genre_name = genre_name
         self.genre_name_type = genre_name_type
+        self.parent = parent
 
     def __repr__(self):
         return('<Genre {} {}>'.format(self.id, self.genre_name))
+
+    @staticmethod
+    def get_all():
+        return Genre.query.filter( Genre.genre_name_type != '' ).order_by( Genre.id ).all()
+
+    @staticmethod
+    def get_parents():
+        return Genre.query.filter( Genre.genre_name_type == '' ).order_by( Genre.id ).all()
+
+    @staticmethod
+    def get_children(parent_id):
+        return Genre.query.filter( Genre.parent == parent_id ).order_by( Genre.id ).all()
+
+    @staticmethod
+    def get_all_counted():
+        genre = Genre()
+        return genre.query.add_column(
+                    func.count(
+                        GenreBook.book_id
+                    )).outerjoin(
+                        GenreBook,
+                        GenreBook.genre_id == Genre.id,
+                    ).filter(
+                        Genre.genre_name_type != ''
+                    ).group_by(Genre.id).all()
+
 
 
 class Book(Base):
@@ -184,6 +212,8 @@ class Book(Base):
                 literal_column("'allow'").label('access')
             ).filter(
                 Chapter.book_id == book_id,
+            ).filter(
+                or_( Chapter.deleted < 2, Chapter.deleted == None )
             ).order_by(
                 Chapter.chapter_number,
             ).all()
@@ -201,6 +231,8 @@ class Book(Base):
                     )
             ).filter(
                 Chapter.book_id == book_id,
+            ).filter(
+                or_(Chapter.deleted < 1, Chapter.deleted == None )
             )
 
             not_in = db_session.query(
@@ -220,6 +252,8 @@ class Book(Base):
                 literal_column("'deny'").label('access')
             ).filter(
                 ~Chapter.id.in_(not_in)
+            ).filter(
+                Chapter.book_id == book_id,
             )
 
             book_chapters = allowed.union(
@@ -235,6 +269,36 @@ class Book(Base):
             }
         return book_dict
 
+    def get_books_by_genre(self,genre_id):
+        genre = Genre()
+        parent_genres = genre.get_parents()
+
+        if genre_id in [ genre_row.id for genre_row in parent_genres ]:
+            children = genre.get_children(genre_id)
+            return self.query.outerjoin( 
+                        GenreBook,
+                        GenreBook.book_id == Book.id 
+                    ).filter(
+                        GenreBook.genre_id.in_(
+                            [child.id for child in children]
+                    )).options(
+                        joinedload(
+                            Book.authors
+                        ).joinedload(
+                            Author.user
+                    )).all()
+        else:
+            return self.query.outerjoin( 
+                        GenreBook,
+                        GenreBook.book_id == Book.id
+                    ).filter(
+                        GenreBook.genre_id == genre_id
+                    ).options(
+                        joinedload(
+                            Book.authors
+                        ).joinedload(
+                            Author.user
+                    )).all()
 
 class GenreBook(Base):
     __tablename__ = 'genre_book'
@@ -285,7 +349,9 @@ class Chapter(Base):
     chapter_title = Column(String(255))
     date_to_open = Column(DateTime, default=datetime.utcnow)
     last_edited = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    deleted = Column(SmallInteger)
     chapter_text = Column(Text)
+
     alowed_user = relationship('Grant', backref='alowed')
 
     def __init__(
@@ -294,7 +360,8 @@ class Chapter(Base):
                 chapter_number=None,
                 chapter_title=None,
                 date_to_open=None,
-                chapter_text=None
+                chapter_text=None,
+                deleted=0,
                 ):
 
         self.book_id = book_id
@@ -302,6 +369,7 @@ class Chapter(Base):
         self.chapter_title = chapter_title
         self.date_to_open = date_to_open
         self.chapter_text = chapter_text
+        self.deleted = deleted
 
     def __repr__(self):
         return('<Chapter {} {} {}>'.format(
@@ -330,6 +398,8 @@ class Chapter(Base):
                 literal_column("'allow'").label('access')
             ).filter(
                 Chapter.id == chapter_id,
+            ).filter(
+                or_( Chapter.deleted < 2, Chapter.deleted == None )
             ).all()
 
         else:
@@ -345,6 +415,8 @@ class Chapter(Base):
                     )
             ).filter(
                 Chapter.id == chapter_id,
+            ).filter(
+                or_(Chapter.deleted < 1, Chapter.deleted == None )
             )
 
             not_in = db_session.query(

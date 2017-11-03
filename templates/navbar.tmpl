@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-toggleable-md navbar-light bg-primary">
   <a class="navbar-brand" href="/">BookShell</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -6,9 +6,16 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
+      <li class="nav-item">
         <a class="nav-link" href="#">Моя книжная полка</a>
       </li>
+      <li class="nav-item dropdown active">
+		<a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Поиск по жанрам</a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+		{% for genre in nav_get_parents %}
+          <a class="dropdown-item" href="/genres/{{ genre.id }}">{{ genre.genre_name }}</a>
+		{% endfor %}
+        </div>
     </ul>
 	{% if username %}
 

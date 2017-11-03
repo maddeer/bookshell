@@ -9,9 +9,8 @@ from model.models import Author, User
 
 
 def docx_to_text(docx_file):
-    f = open(docx_file, 'rb')
-    document = docx.Document(f)
-    f.close()
+    with open(docx_file, 'rb') as f: 
+        document = docx.Document(f)
 
     docText = '\n\n'.join([
         paragraph.text for paragraph in document.paragraphs
@@ -21,7 +20,8 @@ def docx_to_text(docx_file):
 
 def get_genre_dict():
     genre_dict = {}
-    for line in Genre.query.all():
+    genre = Genre()
+    for line in genre.get_all():
             genre_dict[line.genre_name.lower()] = line.id
     return genre_dict
 
@@ -42,11 +42,11 @@ def save_the_book(
     db_session.add(new_book)
     db_session.commit()
     genre_dict = get_genre_dict()
-    if genre is not None:
+    if genre:
         for genre_id in genre:
             new_book_genre = GenreBook(new_book.id, genre_id)
             db_session.add(new_book_genre)
-    if user_id is not None:
+    if user_id:
         new_author = Author(user_id, new_book.id)
         db_session.add(new_author)
         db_session.commit()
@@ -72,11 +72,12 @@ def add_chapter(
         chapter_number=None,
         ):
     author = Author.query.filter(
-        Author.user_id == user_id
+            Author.user_id == user_id
         ).filter(
-        Author.book_id == book_id
+            Author.book_id == book_id
         ).first()
-    if author is not None:
+
+    if author:
         new_chapter = Chapter(
             book_id,
             chapter_number,

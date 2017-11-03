@@ -1,0 +1,8 @@
+fpdf 
+PyCRC
+flask 
+sqlalchemy_migrate
+sqlalchemy
+python_telegram_bot
+configparser
+python-docx
