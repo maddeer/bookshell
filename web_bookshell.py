@@ -35,7 +35,7 @@ def index():
     offset = request.args.get('next')
     if not offset:
         offset = 0
-    book_info = book.query.limit(25).offset(offset).all()
+    book_info = book.query.order_by(Book.id.desc()).limit(25).offset(offset).all()
     username = session.get('username')
     genre = Genre()
     counted_genres = genre.get_all_counted()
