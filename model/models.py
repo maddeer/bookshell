@@ -168,7 +168,6 @@ class Genre(Base):
                     ).group_by(Genre.id).all()
 
 
-
 class Book(Base):
     __tablename__ = 'book'
 
