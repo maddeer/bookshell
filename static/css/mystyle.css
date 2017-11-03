@@ -82,4 +82,7 @@ select#genres{
 	  background-color: white;
 	  color: inherit;
 }
-
+.bg-white {
+  background-color: #fff !important;
+  border-color: #fff !important;
+}
