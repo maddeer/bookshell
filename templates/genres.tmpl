@@ -1,5 +1,11 @@
 
-	<div class="col col-md-auto"> 
+<div class="col col-md-auto"> <nav class="navbar navbar-toggleable-md navbar-light bg-white ">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#genreContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="genreContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
 <div id="accordion" role="tablist">
 {% for parent_genre in nav_get_parents %}
   <div class="card" style="width: 20rem;">
@@ -20,9 +26,9 @@
 		{% for genre in genres %}
 			{% if genre[0].parent == parent_genre.id %}
 				{% if genre[1] == 0 %}
-		<br/><a class='dropdown-item disabled'>{{ genre[0].genre_name }}</a>
+		<a class='dropdown-item disabled'>{{ genre[0].genre_name }}</a>
 				{% else %}
-		<br/><a class='dropdown-item' href='/genres/{{ genre[0].id }}'>{{ genre[0].genre_name }}</a>
+		<a class='dropdown-item' href='/genres/{{ genre[0].id }}'>{{ genre[0].genre_name }}</a>
 				{% endif %}
 				
 			{% endif %}
@@ -31,4 +37,5 @@
     </div>
   </div>
 {% endfor %}
-</div>	
+</div></li></ul/></div></nav>
+</div>
