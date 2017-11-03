@@ -1,8 +1,9 @@
 fpdf 
 PyCRC
 flask 
-sqlalchemy_migrate
+sqlalchemy-migrate
 sqlalchemy
-python_telegram_bot
+python-telegram-bot
 configparser
 python-docx
+python-magic
