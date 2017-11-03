@@ -266,6 +266,15 @@ class Author(Base):
     def __repr__(self):
         return('<Author {} {}>'.format(self.user_id, self.book_id))
 
+    @staticmethod
+    def get_authors_with_books():
+        user_list = []
+        user_with_books = Author.query.group_by(Author.user_id).all()
+        for line in user_with_books:
+            user_list.append(line.user_id)
+        return user_list
+
+
 
 class Chapter(Base):
     __tablename__ = 'chapter'
