@@ -144,7 +144,7 @@ def export_book_method(get_book_info):
         avaliable_formats = ['pdf', 'fb2',]
         
         if book_format not in avaliable_formats:
-            abort(404)
+            abor(404)
 
         if not user_id:
             user_id = 0
@@ -244,7 +244,38 @@ def update_profile(user_data=None, update_form=None):
 
 
 @app.route('/addbook', methods=['POST', 'GET'])
+#@login_required
 def addbook():
+#    if request.method == 'POST':
+#        form = AddBookForm(request.form, request.files)
+#        errors = form.get_arrors()
+#        if errors:
+#            for error in errors:
+#                flash(error)
+#                redirect(url_for('add_book'))
+#        else:
+#            Book.create(form.data)
+#    elif request.method == 'GET':
+#        context = {}
+#        return render_template(...)
+#
+#class AddBookFormView(View):
+#    def post(self):
+#        form = AddBookForm(request.form, request.files)
+#        errors = form.get_arrors()
+#        if errors:
+#            for error in errors:
+#                flash(error)
+#            redirect(url_for('add_book'))
+#        else:
+#            Book.create(form.data)
+#
+#    def get(self):
+#        context = {}
+#        return render_template()
+#
+#
+######################################
     username = session.get('username')
     user_id = session.get('user_id')
 
@@ -260,7 +291,7 @@ def addbook():
             flash('Вы не вложили файл с первой частью')
             return redirect(url_for('addbook'))
 
-        if not request.form.get('book_name', None):
+        if not request.form.get('book_name'):
             flash('Нет названия книги')
             return redirect(url_for('addbook'))
 

@@ -92,7 +92,7 @@ def add_chapter(
         return None
 
 
-def get_ig_by_tlegram_name(name):
+def get_id_by_telegram_name(name):
     user = User.query.filter(User.telegram_login == name).first()
     if user is not None:
         return user.id

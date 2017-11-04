@@ -61,7 +61,7 @@ def main():
 
 
 def start(bot, update):
-    if User.get_ig_by_telegram_name(update.message.chat.username) is not None:
+    if User.get_id_by_telegram_name(update.message.chat.username) is not None:
         anser = '''
         Добрый день!
         Вы находитесь в библиотеке.
@@ -155,7 +155,7 @@ def get_book(bot, update, user_data):
             )
         if my_book:
             chat_id = update.message.chat.id
-            user_id = User.get_ig_by_telegram_name(update.message.chat.username)
+            user_id = User.get_id_by_telegram_name(update.message.chat.username)
             book_file = get_book_file(my_book.id, book_name, 'pdf', user_id)
             book_obj = BytesIO(book_file['file'])
             bot.send_document(
@@ -217,7 +217,7 @@ def command_handler(bot, update, user_data):
         user_data['genre'] = genres
         save_the_book(
             user_data.get('name'),
-            User.get_ig_by_telegram_name(update.message.chat.username),
+            User.get_id_by_telegram_name(update.message.chat.username),
             user_data.get('text_from_file'),
             user_data.get('description'),
             user_data.get('chapter_name'),
@@ -235,7 +235,7 @@ def command_handler(bot, update, user_data):
         for line in Genre.get_parents():
             answer += line.genre_name + ' '
     elif update.message.text == '/start':
-        if User.get_ig_by_telegram_name(update.message.chat.username) is  None:
+        if User.get_id_by_telegram_name(update.message.chat.username) is  None:
             answer = ANSWERS[update.message.text][2]
     update.message.reply_text(answer)
     return ANSWERS[update.message.text][1]

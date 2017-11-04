@@ -124,7 +124,7 @@ class User(Base):
                         ]).strip().replace('  ',' ')
 
     @staticmethod
-    def get_ig_by_telegram_name(name):
+    def get_id_by_telegram_name(name):
         user = User.query.filter(User.telegram_login == name).first()
         if user is not None:
             return user.id
