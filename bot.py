@@ -9,7 +9,6 @@ import pickle
 from telegram.ext import Updater, CommandHandler, MessageHandler
 from telegram.ext import Filters, ConversationHandler
 from datetime import datetime
-#import magic
 import configparser
 from sqlalchemy.orm import joinedload
 
@@ -36,7 +35,7 @@ MAIN_MENU, CREATE_A_BOOK, ADD_CHAPTER_NAME, ADD_A_GENRE, CHOOSE_NAME,\
     SAVE_BOOK, EDIT_A_BOOK, READ_A_BOOK, GET_BOOK_LIST_BY_AUTHOR,\
     GET_BOOK, BY_GENRE, BY_DATE, BY_NAME = range(17)
 
-GENRE = {}
+#GENRE = {}
 
 
 def main():
