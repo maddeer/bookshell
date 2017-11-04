@@ -63,7 +63,8 @@ def make_pdf_book(book):
     #pdf_file_name = os.path.join('static', 'pdf', pdf_file_name)
 
     with BytesIO() as pdf_file: 
-        pdf_file.write(pdf.output(dest='S').encode('latin-1'))
+        pdf_file.write(pdf.output(dest='S').encode('latin-1', 'ignore'))
+
 
         book_file = { 
                    'file_name': pdf_file_name,

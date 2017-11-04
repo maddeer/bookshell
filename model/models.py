@@ -123,6 +123,14 @@ class User(Base):
                         self.last_name
                         ]).strip().replace('  ',' ')
 
+    @staticmethod
+    def get_ig_by_telegram_name(name):
+        user = User.query.filter(User.telegram_login == name).first()
+        if user is not None:
+            return user.id
+        else:
+            return 0
+
 
 class Genre(Base):
     __tablename__ = 'genre'
@@ -328,6 +336,15 @@ class Author(Base):
 
     def __repr__(self):
         return('<Author {} {}>'.format(self.user_id, self.book_id))
+
+    @staticmethod
+    def get_authors_with_books():
+        user_list = []
+        user_with_books = Author.query.group_by(Author.user_id).all()
+        for line in user_with_books:
+            user_list.append(line.user_id)
+        return user_list
+
 
 
 class Chapter(Base):
