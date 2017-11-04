@@ -4,16 +4,22 @@ from telegram.ext import ConversationHandler
 MAIN_MENU, CREATE_A_BOOK, ADD_CHAPTER_NAME, ADD_A_GENRE, CHOOSE_NAME,\
     CHOOSE_GENRES, SAVE_MY_BOOK, UPLOAD_A_TEXT, ADD_DESCRIPTION,\
     SAVE_BOOK, EDIT_A_BOOK, READ_A_BOOK, GET_BOOK_LIST_BY_AUTHOR,\
-    GET_BOOK, BY_GENRE, BY_DATE, BY_NAME = range(17)
+    GET_BOOK, GET_BOOK_LIST_BY_GENRE, BY_DATE, BY_NAME = range(17)
 
 ANSWERS = {
     '/start': ['''
     Добрый день!
     Вы находитесь в библиотеке.
     Вы можете добавить новую книгу /add_a_book
-    Отредактирвать старую /edit_a_book
-    или выбрать книгу для чтения /read_a_book
-    ''', MAIN_MENU],
+    Выбрать книгу для чтения /read_a_book
+    Для возврата в главное меню /start
+    ''', MAIN_MENU,
+    '''
+    Добрый день! Вы не зарегестрированны,
+    вам доступен только просмотр бесплатных книг
+    Для просмотра книг нажмите /read_a_book
+    Для возврата в главное меню /start
+        '''],
     '/add_a_book': ['''
     Укажите название книги /choose_name
     Выберете жанр книги, /choose_genres
@@ -51,15 +57,13 @@ ANSWERS = {
     По каким параметрам хотите выбрать книгу
     по автору /by_author
     по жанру /by_genre
-    по дате добавления /by_date
-    по названию /by_name
     ''', READ_A_BOOK],
     '/by_author': ['''
     Выберете автора
     ''', GET_BOOK_LIST_BY_AUTHOR],
     '/by_genre': ['''
-    Выберете жанр
-    ''', BY_GENRE],
+    Выберете жанр:
+    ''', GET_BOOK_LIST_BY_GENRE],
     '/by_date': ['''
     Послежние 10 книг
     если хотите еще 10 выберете /more_10
@@ -80,6 +84,7 @@ def make_conv_handler(
         cancel,
         download_google_doc,
         get_book_list_by_author,
+        get_book_list_by_genre,
         get_book,
         ):
     conv_handler = ConversationHandler(
@@ -127,11 +132,19 @@ def make_conv_handler(
                     'save_my_book',
                     command_handler,
                     pass_user_data=True),
+                CommandHandler(
+                    'start',
+                    command_handler,
+                    pass_user_data=True),
             ],
             CHOOSE_GENRES: [
                 MessageHandler(
                     filters_text,
                     get_genres,
+                    pass_user_data=True),
+                CommandHandler(
+                    'start',
+                    command_handler,
                     pass_user_data=True),
             ],
             CHOOSE_NAME: [
@@ -142,6 +155,10 @@ def make_conv_handler(
                         'Вы выбрали имя книги ',
                         ),
                     pass_user_data=True),
+                 CommandHandler(
+                    'start',
+                    command_handler,
+                    pass_user_data=True),
             ],
             ADD_DESCRIPTION: [
                  MessageHandler(
@@ -151,6 +168,10 @@ def make_conv_handler(
                         'Вы выбрали описание книги '
                         ),
                     pass_user_data=True),
+                 CommandHandler(
+                    'start',
+                    command_handler,
+                    pass_user_data=True),
             ],
             ADD_CHAPTER_NAME: [
                  MessageHandler(
@@ -159,6 +180,10 @@ def make_conv_handler(
                         'chapter_name',
                         'Вы выбрали название главы '
                         ),
+                    pass_user_data=True),
+                 CommandHandler(
+                    'start',
+                    command_handler,
                     pass_user_data=True),
             ],
             UPLOAD_A_TEXT: [
@@ -170,10 +195,30 @@ def make_conv_handler(
                     filters_text,
                     download_google_doc,
                     pass_user_data=True),
+                CommandHandler(
+                    'start',
+                    command_handler,
+                    pass_user_data=True),
             ],
             READ_A_BOOK: [
-                MessageHandler(
+                CommandHandler(
                     'by_author',
+                    command_handler,
+                    pass_user_data=True),
+                CommandHandler(
+                    'by_genre',
+                    command_handler,
+                    pass_user_data=True),
+                CommandHandler(
+                    'by_date',
+                    command_handler,
+                    pass_user_data=True),
+                CommandHandler(
+                    'by_name',
+                    command_handler,
+                    pass_user_data=True),
+                CommandHandler(
+                    'start',
                     command_handler,
                     pass_user_data=True),
             ],
@@ -182,11 +227,29 @@ def make_conv_handler(
                     filters_text,
                     get_book_list_by_author,
                     pass_user_data=True),
+                CommandHandler(
+                    'start',
+                    command_handler,
+                    pass_user_data=True),
+            ],
+            GET_BOOK_LIST_BY_GENRE: [
+                MessageHandler(
+                    filters_text,
+                    get_book_list_by_genre,
+                    pass_user_data=True),
+                CommandHandler(
+                    'start',
+                    command_handler,
+                    pass_user_data=True),
             ],
             GET_BOOK: [
                 MessageHandler(
                     filters_text,
                     get_book,
+                    pass_user_data=True),
+                CommandHandler(
+                    'start',
+                    command_handler,
                     pass_user_data=True),
             ],
         },
